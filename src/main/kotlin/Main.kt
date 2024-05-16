@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import ds.DataSourceFactory
 import inputOutput.Console
 
 @Composable
@@ -29,6 +30,7 @@ fun main() {//= application {
 
     val console = Console()
 
+    val dataSource = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI)
 
 
 
