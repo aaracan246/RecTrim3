@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import inputOutput.Console
 
 @Composable
 @Preview
@@ -24,8 +25,15 @@ fun App() {
     }
 }
 
-fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
-        App()
-    }
+fun main() {//= application {
+
+    val console = Console()
+
+
+
+
+
+//    Window(onCloseRequest = ::exitApplication) {
+//        App()
+//    }
 }
