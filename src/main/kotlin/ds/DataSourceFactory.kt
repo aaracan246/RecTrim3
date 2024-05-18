@@ -7,14 +7,17 @@ import javax.sql.DataSource
 object DataSourceFactory {
     enum class DataSourceType {
         HIKARI,
-        JDBC
+        JDBC,
+        JSON,
+        XML
+
     }
 
     fun getDS(dataSourceType: DataSourceType): DataSource {
         return when (dataSourceType) {
             DataSourceType.HIKARI -> {
                 val config = HikariConfig()
-                config.jdbcUrl = "jdbc:h2:./BooksDAO"
+                config.jdbcUrl = "jdbc:h2:./CTFSDAO"
                 config.username = "user"
                 config.password = "user"
                 config.driverClassName = "org.h2.Driver"
@@ -25,6 +28,12 @@ object DataSourceFactory {
             }
 
             DataSourceType.JDBC -> TODO()
+
+
+            DataSourceType.JSON -> TODO()
+
+
+            DataSourceType.XML -> TODO()
         }
     }
 }

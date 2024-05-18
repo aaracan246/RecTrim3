@@ -1,47 +1,49 @@
 package dao
 
-import entity.GRUPOS
-import interfaces.IGROUPSdao
+import entity.CTFS
+import interfaces.ICTFdao
 import java.sql.SQLException
 import javax.sql.DataSource
 
-class GRUPOSdao(private val dataSource: DataSource): IGROUPSdao {  // la consola da problemas en DAO !!!!!!!!!!
+class CTFSdao(private val dataSource: DataSource): ICTFdao{
 
-    override fun insertGroup(grupos: GRUPOS): GRUPOS? {
-        val sql = "INSERT INTO GRUPOS (ID, GRUPODESC, MEJORPOSCTFID)"
+    override fun insertCTF(ctf: CTFS): CTFS? {
+        val sql = "INSERT INTO CTFS (ID, GRUPOID, PUNTUACION)"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
-                statement.setString(1, grupos.grupoId.toString())
-                statement.setString(2, grupos.grupoDesc)
-                statement.setInt(3, grupos.mejorPosCTFId)
+                statement.setInt(1, ctf.CTFid)
+                statement.setInt(2, ctf.grupoid)
+                statement.setInt(3, ctf.puntuacion)
                 val rs = statement.executeUpdate()
                 if (rs == 1) {
-                    return grupos
-                } else {
+                    return ctf
+                }
+                else {
                     throw SQLException("Something unexpected happened while trying to insert the data.")
                 }
             }
         }
     }
 
-    override fun getAllGroups(): List<GRUPOS>? {
-        val sql = "SELECT * FROM GRUPOS"
+    override fun getAllCTFS(): List<CTFS>? {
+        val sql = "SELECT * FROM CTFS"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
                 val rs = statement.executeQuery()
-                val grupos = mutableListOf<GRUPOS>()
+                val ctfs = mutableListOf<CTFS>()
                 while (rs!!.next()){
-                    grupos.add(
-                        GRUPOS(
-                            grupoDesc = rs.getString("GROUP_DESC"),   // Quizás recuperar ID - checkear DB
-                            mejorPosCTFId = rs.getInt("BEST_GROUP_POSITION")
+                    ctfs.add(
+                        CTFS(
+                            CTFid = rs.getInt("CTF_ID"),
+                            grupoid = rs.getInt("GROUP_DESC"),   // Quizás recuperar ID - checkear DB
+                            puntuacion = rs.getInt("BEST_GROUP_POSITION")
                         )
                     )
                 }
-                if (grupos != null){
-                    return grupos
+                if (ctfs != null){
+                    return ctfs
                 }
                 else{
                     throw SQLException("Something unexpected happened while trying to retrieve groups data.")
@@ -50,18 +52,18 @@ class GRUPOSdao(private val dataSource: DataSource): IGROUPSdao {  // la consola
         }
     }
 
-    override fun getGroupById(id: Int): GRUPOS? {
-        val sql = "SELECT * FROM GRUPOS WHERE ID = (?)"
+    override fun getCTFById(id: Int): CTFS? {
+        val sql = "SELECT * FROM CTFS WHERE ID = (?)"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
                 statement.setString(1, id.toString())
                 val rs = statement.executeQuery()
                 if (rs.next()) {
-                    return GRUPOS(
-                        grupoId = rs.getInt("GROUP_ID"),
-                        grupoDesc = rs.getString("GROUP_DESC"),   // Quizás recuperar ID - checkear DB
-                        mejorPosCTFId = rs.getInt("BEST_GROUP_POSITION")
+                    return CTFS(
+                        CTFid = rs.getInt("CTF_ID"),
+                        grupoid = rs.getInt("GROUP_DESC"),   // Quizás recuperar ID - checkear DB
+                        puntuacion = rs.getInt("BEST_GROUP_POSITION")
                     )
                 }
                 else{
@@ -71,26 +73,27 @@ class GRUPOSdao(private val dataSource: DataSource): IGROUPSdao {  // la consola
         }
     }
 
-    override fun updateGroups(grupos: GRUPOS): GRUPOS? {
-        val sql = "UPDATE GRUPOS SET ID = ?, GRUPODESC = ?, MEJORPOSCTFID = ?"
+    override fun updateCTFS(ctf: CTFS): CTFS? {
+        val sql = "UPDATE CTFS SET ID = ?, GRUPOID = ?, PUNTUACION = ?"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
-                statement.setString(1, grupos.grupoId.toString())
-                statement.setString(2, grupos.grupoDesc)
-                statement.setInt(3, grupos.mejorPosCTFId)
+                statement.setInt(1, ctf.CTFid)
+                statement.setInt(2, ctf.grupoid)
+                statement.setInt(3, ctf.puntuacion)
                 statement.executeUpdate()
-                if (grupos != null){
-                    return grupos
-                }else{
+                if (ctf != null){
+                    return ctf
+                }
+                else{
                     throw SQLException("Something unexpected happened while trying to update groups data.")
                 }
             }
         }
     }
 
-    override fun deleteGroup(id: Int): Boolean {
-        val sql = "DELETE FROM GRUPOS WHERE ID = (?)"
+    override fun deleteCTF(id: Int): Boolean {
+        val sql = "DELETE FROM CTFS WHERE ID = (?)"
         try {
             dataSource.connection.use { connection ->
                 connection.prepareStatement(sql).use { statement ->

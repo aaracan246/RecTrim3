@@ -10,4 +10,8 @@ class Console: IConsole {
     override fun writer(msg: String, lineBreak: Boolean) {
         if (lineBreak) { println(msg) } else { print(msg) }
     }
+
+
+    // FUNCIÓN PARA CADA COMANDO DE CONSOLA:
+
 }
