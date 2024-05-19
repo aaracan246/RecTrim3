@@ -2,7 +2,7 @@ package interfaces
 
 import entity.GRUPOS
 
-interface IGROUPSdao {
+interface IGRUPOSdao {
     fun insertGroup(grupos: GRUPOS): GRUPOS?
     fun getAllGroups(): List<GRUPOS>?
     fun getGroupById(id: Int): GRUPOS?

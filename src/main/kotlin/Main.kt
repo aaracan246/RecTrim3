@@ -7,15 +7,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
 import dao.CTFSdao
 import dao.GRUPOSdao
 import ds.DataSourceFactory
 import inputOutput.Console
-import interfaces.services.GRUPOSService
 import servicesImplementation.CTFSImpl
 import servicesImplementation.GRUPOSImpl
+import javax.xml.crypto.Data
 
 @Composable
 @Preview
@@ -35,12 +33,13 @@ fun main() {//= application {
 
     val console = Console()
 
-    val dataSource = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI)
+    val dataSourceHikari = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI)
+    //val dataSourceXML = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.XML) <- y así con las respectivas ds
 
-    val gruposDAO = GRUPOSdao(dataSource)
+    val gruposDAO = GRUPOSdao(dataSourceHikari)
     val gruposService = GRUPOSImpl(gruposDAO)
 
-    val ctfs = CTFSdao(dataSource)
+    val ctfs = CTFSdao(dataSourceHikari)
     val ctfsService = CTFSImpl(ctfs)
 
 

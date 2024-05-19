@@ -1,23 +1,23 @@
 package dao
 
 import entity.GRUPOS
-import interfaces.IGROUPSdao
+import interfaces.IGRUPOSdao
 import java.sql.SQLException
 import javax.sql.DataSource
 
-class GRUPOSdao(private val dataSource: DataSource): IGROUPSdao {  // la consola da problemas en DAO !!!!!!!!!!
+class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {  // la consola da problemas en DAO !!!!!!!!!!
 
-    override fun insertGroup(id: GRUPOS): GRUPOS? {
+    override fun insertGroup(grupos: GRUPOS): GRUPOS? {
         val sql = "INSERT INTO GRUPOS (ID, GRUPODESC, MEJORPOSCTFID)"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
-                statement.setString(1, id.grupoId.toString())
-                statement.setString(2, id.grupoDesc)
-                statement.setInt(3, id.mejorPosCTFId)
+                statement.setInt(1, grupos.grupoId)
+                statement.setString(2, grupos.grupoDesc)
+                statement.setInt(3, grupos.mejorPosCTFId)
                 val rs = statement.executeUpdate()
                 if (rs == 1) {
-                    return id
+                    return grupos
                 } else {
                     throw SQLException("Something unexpected happened while trying to insert the data.")
                 }

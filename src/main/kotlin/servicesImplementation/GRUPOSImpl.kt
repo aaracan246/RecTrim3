@@ -5,8 +5,10 @@ import entity.GRUPOS
 import interfaces.services.GRUPOSService
 
 class GRUPOSImpl(private val gruposDAO: GRUPOSdao): GRUPOSService {
-    override fun insertGroup(grupos: GRUPOS): GRUPOS? {
-        return gruposDAO.insertGroup(grupos)
+
+    override fun insertGroup(id: Int, grupoDesc: String, mejorPosCTFId: Int): GRUPOS? {
+        val grupo = GRUPOS(id, grupoDesc, mejorPosCTFId)
+        return gruposDAO.insertGroup(grupo)
     }
 
     override fun getAllGroups(): List<GRUPOS>? {
