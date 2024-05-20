@@ -14,7 +14,7 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
             connection.prepareStatement(sql).use { statement ->
                 statement.setInt(1, ctf.CTFid)
                 statement.setInt(2, ctf.grupoid)
-                statement.setInt(3, ctf.puntuacion)
+                ctf.puntuacion?.let { statement.setInt(3, it) }
                 val rs = statement.executeUpdate()
                 if (rs == 1) {
                     return ctf
@@ -80,7 +80,7 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
             connection.prepareStatement(sql).use { statement ->
                 statement.setInt(1, ctf.CTFid)
                 statement.setInt(2, ctf.grupoid)
-                statement.setInt(3, ctf.puntuacion)
+                ctf.puntuacion?.let { statement.setInt(3, it) }
                 statement.executeUpdate()
                 if (ctf != null){
                     return ctf

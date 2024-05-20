@@ -12,6 +12,6 @@ class Console: IConsole {
     }
 
 
-    // FUNCIÓN PARA CADA COMANDO DE CONSOLA:
+
 
 }

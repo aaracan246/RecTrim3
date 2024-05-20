@@ -7,9 +7,7 @@ import javax.sql.DataSource
 object DataSourceFactory {
     enum class DataSourceType {
         HIKARI,
-        JDBC,
-        JSON,
-        XML
+        JDBC
 
     }
 
@@ -29,11 +27,6 @@ object DataSourceFactory {
 
             DataSourceType.JDBC -> TODO()
 
-
-            DataSourceType.JSON -> TODO()
-
-
-            DataSourceType.XML -> TODO()
         }
     }
 }

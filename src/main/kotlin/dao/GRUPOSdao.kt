@@ -8,13 +8,17 @@ import javax.sql.DataSource
 class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {  // la consola da problemas en DAO !!!!!!!!!!
 
     override fun insertGroup(grupos: GRUPOS): GRUPOS? {
-        val sql = "INSERT INTO GRUPOS (ID, GRUPODESC, MEJORPOSCTFID)"
+        val sql = "INSERT INTO GRUPOS (GRUPODESC, MEJORPOSCTFID)"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
-                statement.setInt(1, grupos.grupoId)
-                statement.setString(2, grupos.grupoDesc)
-                statement.setInt(3, grupos.mejorPosCTFId)
+                statement.setString(1, grupos.grupoDesc)
+                if (grupos.mejorPosCTFId != null){
+                    statement.setInt(2, grupos.mejorPosCTFId)
+                }
+                else{
+                    statement.setNull(2, java.sql.Types.INTEGER)
+                }
                 val rs = statement.executeUpdate()
                 if (rs == 1) {
                     return grupos
@@ -78,7 +82,7 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {  // la consola
             connection.prepareStatement(sql).use { statement ->
                 statement.setString(1, grupos.grupoId.toString())
                 statement.setString(2, grupos.grupoDesc)
-                statement.setInt(3, grupos.mejorPosCTFId)
+                grupos.mejorPosCTFId?.let { statement.setInt(3, it) }
                 statement.executeUpdate()
                 if (grupos != null){
                     return grupos

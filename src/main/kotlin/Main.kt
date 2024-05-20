@@ -34,7 +34,7 @@ fun main() {//= application {
     val console = Console()
 
     val dataSourceHikari = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI)
-    //val dataSourceXML = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.XML) <- y así con las respectivas ds
+
 
     val gruposDAO = GRUPOSdao(dataSourceHikari)
     val gruposService = GRUPOSImpl(gruposDAO)
