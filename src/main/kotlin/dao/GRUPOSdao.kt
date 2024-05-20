@@ -39,8 +39,8 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
                 while (rs!!.next()){
                     grupos.add(
                         GRUPOS(
-                            grupoDesc = rs.getString("GROUP_DESC"),   // Quizás recuperar ID - checkear DB
-                            mejorPosCTFId = rs.getInt("BEST_GROUP_POSITION")
+                            grupoDesc = rs.getString("GRUPODESC"),   // Quizás recuperar ID - checkear DB
+                            mejorPosCTFId = rs.getInt("MEJORPOSCTFID")
                         )
                     )
                 }
@@ -63,9 +63,9 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
                 val rs = statement.executeQuery()
                 if (rs.next()) {
                     return GRUPOS(
-                        grupoId = rs.getInt("GROUP_ID"),
-                        grupoDesc = rs.getString("GROUP_DESC"),   // Quizás recuperar ID - checkear DB
-                        mejorPosCTFId = rs.getInt("BEST_GROUP_POSITION")
+                        grupoId = rs.getInt("GRUPOID"),
+                        grupoDesc = rs.getString("GRUPODESC"),   // Quizás recuperar ID - checkear DB
+                        mejorPosCTFId = rs.getInt("MEJORPOSCTFID")
                     )
                 }
                 else{

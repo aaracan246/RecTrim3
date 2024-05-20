@@ -51,8 +51,6 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                 else{
                     val grupoId = args[1].toIntOrNull()
 
-
-
                     if (grupoId == null){
                         console.writer("Group data not found, showing all groups:")
                         showAllGroupsInfo()
