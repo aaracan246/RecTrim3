@@ -28,7 +28,23 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
             "-p" -> ""
 
-            "-t" -> ""
+            "-t" -> {
+                if (args.size < 2){
+                    console.writer("Not enough arguments. Try: -t <grupoId>")
+                }
+                else{
+                    val grupoId = args[1].toIntOrNull()
+
+
+                    if (grupoId != null){
+                        deleteGroup(grupoId)
+                    }
+                    else{
+                        console.writer("GroupID must be an integer number and cannot be empty.")
+                    }
+                }
+            }
+
 
             "-e" -> ""
 
@@ -53,6 +69,25 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         else{
             console.writer("Something unexpected happened while trying to insert the group.")
         }
+
+    }
+
+    private fun addParticipation(ctfId: Int, puntuacion: Int){  // -p
+
+    }
+
+    private fun deleteGroup(grupoId: Int){
+        val successfulDel = gruposImpl.deleteGroup(grupoId)
+
+        if (successfulDel){
+            console.writer("Group deleted successfully: $grupoId.")
+        }
+        else{
+            console.writer("Something unexpected happened while trying to delete the group.")
+        }
+    }
+
+    private fun showAllGroupsInfo(){ // -l
 
     }
 }
