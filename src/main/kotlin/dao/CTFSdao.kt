@@ -8,7 +8,7 @@ import javax.sql.DataSource
 class CTFSdao(private val dataSource: DataSource): ICTFdao{
 
     override fun insertCTF(ctf: CTFS): CTFS? {
-        val sql = "INSERT INTO CTFS (ID, GRUPOID, PUNTUACION)"
+        val sql = "INSERT INTO CTFS (CTFID, GRUPOID, PUNTUACION) VALUES (?, ?, ?)"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
@@ -53,7 +53,7 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
     }
 
     override fun getCTFById(id: Int): CTFS? {
-        val sql = "SELECT * FROM CTFS WHERE ID = (?)"
+        val sql = "SELECT * FROM CTFS WHERE CTFID = (?)"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
@@ -74,7 +74,7 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
     }
 
     override fun updateCTFS(ctf: CTFS): CTFS? {
-        val sql = "UPDATE CTFS SET ID = ?, GRUPOID = ?, PUNTUACION = ?"
+        val sql = "UPDATE CTFS SET CTFID = ?, GRUPOID = ?, PUNTUACION = ?"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
@@ -93,7 +93,7 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
     }
 
     override fun deleteCTF(id: Int): Boolean {
-        val sql = "DELETE FROM CTFS WHERE ID = (?)"
+        val sql = "DELETE FROM CTFS WHERE CTFID = (?)"
         try {
             dataSource.connection.use { connection ->
                 connection.prepareStatement(sql).use { statement ->

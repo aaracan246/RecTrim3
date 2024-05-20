@@ -1,10 +1,11 @@
 package inputOutput
 
 import entity.GRUPOS
+import servicesImplementation.CTFSImpl
 import servicesImplementation.GRUPOSImpl
 import javax.sql.DataSource
 
-class InputReceiver(private val console: Console, private val gruposImpl: GRUPOSImpl) {
+class InputReceiver(private val console: Console, private val gruposImpl: GRUPOSImpl, private val ctfsImpl: CTFSImpl) {
 
     fun inputMenu(args: Array<String>){
 
@@ -16,8 +17,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                 else{
                     val grupoDesc = args[1]
                     addGroup(grupoDesc)
-                        //console.writer("GroupID must be an integer number and cannot be empty.")
-
+                    console.writer("Se ha añadido con éxito.")
                 }
             }
 
@@ -50,7 +50,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                 }
                 else{
                     val grupoId = args[1].toIntOrNull()
-                    val secondArg =
+
 
 
                     if (grupoId == null){

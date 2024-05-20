@@ -6,8 +6,8 @@ import interfaces.services.GRUPOSService
 
 class GRUPOSImpl(private val gruposDAO: GRUPOSdao): GRUPOSService {
 
-    override fun insertGroup(grupoDesc: String, mejorPosCTFId: Int): GRUPOS? {
-        val grupo = GRUPOS(grupoDesc = grupoDesc, mejorPosCTFId = mejorPosCTFId)
+    override fun insertGroup(grupoDesc: String): GRUPOS? {
+        val grupo = GRUPOS(grupoDesc = grupoDesc)
         return gruposDAO.insertGroup(grupo)
     }
 

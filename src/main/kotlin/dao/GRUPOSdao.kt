@@ -5,10 +5,10 @@ import interfaces.IGRUPOSdao
 import java.sql.SQLException
 import javax.sql.DataSource
 
-class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {  // la consola da problemas en DAO !!!!!!!!!!
+class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
 
     override fun insertGroup(grupos: GRUPOS): GRUPOS? {
-        val sql = "INSERT INTO GRUPOS (GRUPODESC, MEJORPOSCTFID)"
+        val sql = "INSERT INTO GRUPOS (GRUPODESC, MEJORPOSCTFID) VALUES (?, ?)"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
@@ -55,7 +55,7 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {  // la consola
     }
 
     override fun getGroupById(id: Int): GRUPOS? {
-        val sql = "SELECT * FROM GRUPOS WHERE ID = (?)"
+        val sql = "SELECT * FROM GRUPOS WHERE GRUPOID = (?)"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
@@ -76,7 +76,7 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {  // la consola
     }
 
     override fun updateGroups(grupos: GRUPOS): GRUPOS? {
-        val sql = "UPDATE GRUPOS SET ID = ?, GRUPODESC = ?, MEJORPOSCTFID = ?"
+        val sql = "UPDATE GRUPOS SET GRUPOID = ?, GRUPODESC = ?, MEJORPOSCTFID = ?"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
@@ -94,18 +94,18 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {  // la consola
     }
 
     override fun deleteGroup(id: Int): Boolean {
-        val sql = "DELETE FROM GRUPOS WHERE ID = (?)"
+        val sql = "DELETE FROM GRUPOS WHERE GRUPOID = (?)"
         try {
             dataSource.connection.use { connection ->
                 connection.prepareStatement(sql).use { statement ->
-                    statement.setString(1, id.toString())
-                    statement.executeUpdate()
+                    statement.setInt(1, id)
+                    (statement.executeUpdate() == 1)
                     return true
                 }
             }
         }
         catch (e: Exception){
-            throw SQLException("Something unexpected happened while trying to update groups data.")
+            throw SQLException("Something unexpected happened while trying to delete groups data.")
         }
     }
 }

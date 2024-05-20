@@ -11,6 +11,7 @@ import dao.CTFSdao
 import dao.GRUPOSdao
 import ds.DataSourceFactory
 import inputOutput.Console
+import inputOutput.InputReceiver
 import servicesImplementation.CTFSImpl
 import servicesImplementation.GRUPOSImpl
 import javax.xml.crypto.Data
@@ -33,8 +34,9 @@ fun main() {//= application {
 
     val console = Console()
 
-    val dataSourceHikari = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI)
+    val arg: Array<String> = arrayOf("-t", "7")
 
+    val dataSourceHikari = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI)
 
     val gruposDAO = GRUPOSdao(dataSourceHikari)
     val gruposService = GRUPOSImpl(gruposDAO)
@@ -42,7 +44,9 @@ fun main() {//= application {
     val ctfs = CTFSdao(dataSourceHikari)
     val ctfsService = CTFSImpl(ctfs)
 
+    val inputReceiver = InputReceiver(console, gruposService, ctfsService)
 
+    inputReceiver.inputMenu(arg)
 
 
 //    Window(onCloseRequest = ::exitApplication) {
