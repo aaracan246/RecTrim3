@@ -1,5 +1,6 @@
 package inputOutput
 
+import entity.GRUPOS
 import servicesImplementation.GRUPOSImpl
 import javax.sql.DataSource
 
@@ -9,7 +10,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
         when(args[0]){
             "-g" -> {
-                if (args.size < 3){
+                if (args.size != 3){
                     console.writer("Not enough arguments. Try: -g <grupoId> <grupoDesc>")
                 }
                 else{
@@ -29,7 +30,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             "-p" -> ""
 
             "-t" -> {
-                if (args.size < 2){
+                if (args.size != 2){
                     console.writer("Not enough arguments. Try: -t <grupoId>")
                 }
                 else{
@@ -48,7 +49,22 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
             "-e" -> ""
 
-            "-l" -> ""
+            "-l" -> {
+                if (args.size != 2){
+                    console.writer("Not enough arguments. Try: -l <grupoId>")
+                }
+                else{
+                    val grupoId = args[1].toIntOrNull()
+
+                    if (grupoId == null){
+                        console.writer("Group data not found, showing all groups:")
+                        showAllGroupsInfo()
+                    }
+                    else{
+                        showGroupInfo(grupoId)
+                    }
+                }
+            }
 
             "-c" -> ""
 
@@ -87,7 +103,24 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
-    private fun showAllGroupsInfo(){ // -l
+    private fun showGroupInfo(grupoId: Int){
+        val grupo = gruposImpl.getGroupById(grupoId)
 
+        if (grupo != null) {
+            console.writer("Group: ${grupo.grupoId}, description: ${grupo.grupoDesc}, best position: ${grupo.mejorPosCTFId}.")
+        } else {
+            console.writer("No data found.")
+        }
+    }
+
+    private fun showAllGroupsInfo(){ // -l
+        val grupo = gruposImpl.getAllGroups()
+
+        if (grupo != null && grupo.isNotEmpty()){
+            grupo.forEach{
+                console.writer("Group: ${it.grupoId}, description: ${it.grupoDesc}, best position: ${it.mejorPosCTFId}.") // Dar formato de salida correcto
+            }
+        }
+        else{ console.writer("No data found.")}
     }
 }
