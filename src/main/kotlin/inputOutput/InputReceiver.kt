@@ -18,7 +18,22 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             }
 
 
-            "-p" -> ""//addParticipation(1, 3)
+            "-p" -> {
+                val arguments = checkArgs(args, 4, "Not enough arguments. Try: -p <grupoId> <ctfId> <puntuacion>")
+                if (arguments != null) {
+                    val grupoId = args[1].toIntOrNull()
+                    val ctfId = args[2].toIntOrNull()
+                    val puntuacion = args[3].toIntOrNull()
+
+                    if (grupoId != null && ctfId != null && puntuacion != null) {
+                        addParticipation(grupoId, ctfId, puntuacion)                           // DESARROLLAR FUNCIÓN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    } else {
+                        console.writer("All arguments must be integer numbers and cannot be empty.")
+                    }
+                } else {
+                    console.writer("Something unexpected happened with the arguments provided.")
+                }
+            }
 
             "-t" -> {
                 val arguments = checkArgs(args, 2, "Not enough arguments. Try: -t <grupoId>")
@@ -76,7 +91,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
     }
 
-    private fun addParticipation(ctfId: Int, puntuacion: Int){  // -p
+    private fun addParticipation(ctfId: Int,  grupoId: Int, puntuacion: Int){  // -p
 
     }
 
