@@ -79,7 +79,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
-    private fun addGroup(grupoDesc: String) {
+    private fun addGroup(grupoDesc: String) {                   // -g
         val grupo = gruposImpl.insertGroup(grupoDesc)
 
         if (grupo != null){
@@ -91,9 +91,24 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
     }
 
-    private fun addParticipation(ctfId: Int,  grupoId: Int, puntuacion: Int){  // -p
+    private fun addParticipation(ctfId: Int,  grupoId: Int, puntuacion: Int){       // -p
 
     }
+
+    //__________________________________________________________________________________________________//
+    // Zona de transacciones (WIP):
+    private fun calcBestPos(grupoDesc: String, puntuacion: Int){
+        val groupMap: MutableMap<String, Int> = mutableMapOf()
+
+        // Obtener un mappeado
+
+    }
+
+
+
+
+
+    //__________________________________________________________________________________________________//
 
     private fun deleteGroup(grupoId: Int){
         val successfulDel = gruposImpl.deleteGroup(grupoId)
@@ -106,17 +121,17 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
-    private fun showGroupInfo(grupoId: Int){
+    private fun showGroupInfo(grupoId: Int){                    // -l
         val grupo = gruposImpl.getGroupById(grupoId)
 
         if (grupo != null) {
-            console.writer("Group: ${grupo.grupoId}, description: ${grupo.grupoDesc}, best position: ${grupo.mejorPosCTFId}.")
+            console.writer("Group: ${grupo.grupoDesc}, best position: ${grupo.mejorPosCTFId}.")
         } else {
             console.writer("No data found.")
         }
     }
 
-    private fun showAllGroupsInfo(){ // -l
+    private fun showAllGroupsInfo(){                            // -l
         val grupo = gruposImpl.getAllGroups()
 
         if (!grupo.isNullOrEmpty()){

@@ -55,7 +55,7 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
     }
 
     override fun getGroupById(id: Int): GRUPOS? {
-        val sql = "SELECT * FROM GRUPOS WHERE GRUPOID = (?)"
+        val sql = "SELECT * FROM GRUPOS WHERE GRUPOID = ?"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
@@ -94,7 +94,7 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
     }
 
     override fun deleteGroup(id: Int): Boolean {
-        val sql = "DELETE FROM GRUPOS WHERE GRUPOID = (?)"
+        val sql = "DELETE FROM GRUPOS WHERE GRUPOID = ?"
         try {
             dataSource.connection.use { connection ->
                 connection.prepareStatement(sql).use { statement ->
