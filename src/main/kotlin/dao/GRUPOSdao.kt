@@ -76,7 +76,7 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
     }
 
     override fun updateGroups(grupos: GRUPOS): GRUPOS? {
-        val sql = "UPDATE GRUPOS SET GRUPOID = ?, GRUPODESC = ?, MEJORPOSCTFID = ?"
+        val sql = "UPDATE GRUPOS SET GRUPODESC = ?, MEJORPOSCTFID = ?"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->

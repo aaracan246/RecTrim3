@@ -11,55 +11,38 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
         when(args[0]){
             "-g" -> {
-                if (args.size != 2){
-                    console.writer("Not enough arguments. Try: -g <grupoDesc>")
-                }
-                else{
-                    val grupoDesc = args[1]
-                    addGroup(grupoDesc)
-                    console.writer("Se ha añadido con éxito.")
-                }
+                val arguments = checkArgs(args, 2, "Not enough arguments. Try: -g <grupoDesc>")
+                val grupoDesc = args[1]
+
+                if (arguments != null) { addGroup(grupoDesc) } else{ console.writer("There was an error while trying to add the group.") }
             }
 
 
-            "-p" -> ""
+            "-p" -> ""//addParticipation(1, 3)
 
             "-t" -> {
-                if (args.size != 2){
-                    console.writer("Not enough arguments. Try: -t <grupoId>")
-                }
-                else{
-                    val grupoId = args[1].toIntOrNull()
+                val arguments = checkArgs(args, 2, "Not enough arguments. Try: -t <grupoId>")
+                val grupoId = args[1].toIntOrNull()
 
-
-                    if (grupoId != null){
-                        deleteGroup(grupoId)
-                    }
-                    else{
-                        console.writer("GroupID must be an integer number and cannot be empty.")
-                    }
-                }
+                if (arguments != null) {
+                    if (grupoId != null) { deleteGroup(grupoId) } else { console.writer("GroupID must be an integer number and cannot be empty.") }
+                } else{ console.writer("Something unexpected happened with the arguments provided.") }
             }
+
 
 
             "-e" -> ""
 
             "-l" -> {
-                if (args.size != 2){
-                    console.writer("Not enough arguments. Try: -l <grupoId>")
-                }
-                else{
-                    val grupoId = args[1].toIntOrNull()
+                val arguments = checkArgs(args, 2, "Not enough arguments. Try: -l <grupoId>")
+                val grupoId = args[1].toIntOrNull()
 
-                    if (grupoId == null){
-                        console.writer("Group data not found, showing all groups:")
-                        showAllGroupsInfo()
-                    }
-                    else{
-                        showGroupInfo(grupoId)
-                    }
-                }
+                if (arguments != null){
+                    if (grupoId == null){ showAllGroupsInfo() } else { showGroupInfo(grupoId) }
+                } else{ console.writer("Something unexpected happened with the arguments provided.") }
             }
+
+
 
             "-c" -> ""
 
@@ -68,6 +51,16 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             "-i" -> ""
 
             else -> console.writer("That is not a valid command.")
+        }
+    }
+
+    private fun checkArgs(args: Array<String>, argSize: Int, msg: String): Array<String>? {
+        return if (args.size == argSize){
+            args.copyOfRange(1, args.size)
+        }
+        else{
+            console.writer(msg)
+            null
         }
     }
 
@@ -111,9 +104,9 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     private fun showAllGroupsInfo(){ // -l
         val grupo = gruposImpl.getAllGroups()
 
-        if (grupo != null && grupo.isNotEmpty()){
+        if (!grupo.isNullOrEmpty()){
             grupo.forEach{
-                console.writer("Group: ${it.grupoId}, description: ${it.grupoDesc}, best position: ${it.mejorPosCTFId}.") // Dar formato de salida correcto
+                console.writer("Group: ${it.grupoDesc}, best position: ${it.mejorPosCTFId}.", true) // Dar formato de salida correcto
             }
         }
         else{ console.writer("No data found.")}
