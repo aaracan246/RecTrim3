@@ -39,6 +39,7 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
                 while (rs!!.next()){
                     grupos.add(
                         GRUPOS(
+                            grupoId = rs.getInt("GRUPOID"),
                             grupoDesc = rs.getString("GRUPODESC"),   // Quizás recuperar ID - checkear DB
                             mejorPosCTFId = rs.getInt("MEJORPOSCTFID")
                         )
