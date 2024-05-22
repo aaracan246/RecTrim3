@@ -1,5 +1,6 @@
 package inputOutput
 
+import entity.CTFS
 import entity.GRUPOS
 import servicesImplementation.CTFSImpl
 import servicesImplementation.GRUPOSImpl
@@ -92,15 +93,26 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     }
 
     private fun addParticipation(ctfId: Int,  grupoId: Int, puntuacion: Int){       // -p
+        val participationExists = ctfsImpl.getCTFParticipation(ctfId, grupoId)
 
+        if (participationExists != null) {
+            participationExists.puntuacion = puntuacion
+            ctfsImpl.updateCTFS(participationExists)
+        }
+        else{
+            val newParticipation = CTFS(ctfId, grupoId, puntuacion)
+            ctfsImpl.insertCTF(newParticipation)
+            console.writer("New CTFS added successfully!")
+        }
     }
 
     //__________________________________________________________________________________________________//
     // Zona de transacciones (WIP):
-    private fun calcBestPos(grupoDesc: String, puntuacion: Int){
-        val groupMap: MutableMap<String, Int> = mutableMapOf()
+    private fun calcBestPos(grupoId: Int){
+        val participations = ctfsImpl.getAllCTFSById(grupoId)
+        val bestParticipation = participations?.maxByOrNull{ it.puntuacion!! }
 
-        // Obtener un mappeado
+        if (bestParticipation != null){ gruposImpl.  }
 
     }
 

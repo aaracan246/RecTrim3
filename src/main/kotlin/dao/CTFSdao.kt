@@ -26,8 +26,32 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
         }
     }
 
-    override fun getAllCTFS(): List<CTFS>? {
-        val sql = "SELECT * FROM CTFS"
+    override fun getCTFParticipation(grupoId: Int, ctfId: Int): CTFS? {
+        val sql = "SELECT * FROM CTFS WHERE GRUPOID = ? AND CTFID = ?"
+
+        dataSource.connection.use { connection ->
+            connection.prepareStatement(sql).use { statement ->
+                statement.setInt(1, grupoId)
+                statement.setInt(2, ctfId)
+                val rs = statement.executeQuery()
+                if (rs.next()){
+                    return CTFS(
+                        CTFid = rs.getInt("CTFID"),
+                        grupoid = rs.getInt("GRUPOID"),
+                        puntuacion = rs.getInt("MEJORPOSCTFID")
+
+                    )
+                }
+                else{
+                    return null
+                }
+            }
+        }
+    }
+
+
+    override fun getAllCTFSById(ctfId: Int): List<CTFS>? {
+        val sql = "SELECT * FROM CTFS WHERE GRUPOID = ?"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
@@ -36,9 +60,9 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
                 while (rs!!.next()){
                     ctfs.add(
                         CTFS(
-                            CTFid = rs.getInt("CTF_ID"),
-                            grupoid = rs.getInt("GROUP_DESC"),   // Quizás recuperar ID - checkear DB
-                            puntuacion = rs.getInt("BEST_GROUP_POSITION")
+                            CTFid = rs.getInt("CTFID"),
+                            grupoid = rs.getInt("GRUPOID"),   // Quizás recuperar ID - checkear DB
+                            puntuacion = rs.getInt("PUNTUACION")
                         )
                     )
                 }
@@ -52,26 +76,6 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
         }
     }
 
-    override fun getCTFById(id: Int): CTFS? {
-        val sql = "SELECT * FROM CTFS WHERE CTFID = (?)"
-
-        dataSource.connection.use { connection ->
-            connection.prepareStatement(sql).use { statement ->
-                statement.setString(1, id.toString())
-                val rs = statement.executeQuery()
-                if (rs.next()) {
-                    return CTFS(
-                        CTFid = rs.getInt("CTF_ID"),
-                        grupoid = rs.getInt("GROUP_DESC"),   // Quizás recuperar ID - checkear DB
-                        puntuacion = rs.getInt("BEST_GROUP_POSITION")
-                    )
-                }
-                else{
-                    throw SQLException("Something unexpected happened while trying to fetch group data.")
-                }
-            }
-        }
-    }
 
     override fun updateCTFS(ctf: CTFS): CTFS? {
         val sql = "UPDATE CTFS SET CTFID = ?, GRUPOID = ?, PUNTUACION = ?"

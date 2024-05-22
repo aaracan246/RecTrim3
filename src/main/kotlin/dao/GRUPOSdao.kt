@@ -109,4 +109,22 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
             throw SQLException("Something unexpected happened while trying to delete groups data.")
         }
     }
+
+    override fun updateGroups(grupos: GRUPOS): GRUPOS? {
+        val sql = "UPDATE GRUPOS SET GRUPODESC = ?, MEJORPOSCTFID = ?"
+
+        dataSource.connection.use { connection ->
+            connection.prepareStatement(sql).use { statement ->
+                statement.setString(1, grupos.grupoId.toString())
+                statement.setString(2, grupos.grupoDesc)
+                grupos.mejorPosCTFId?.let { statement.setInt(3, it) }
+                statement.executeUpdate()
+                if (grupos != null){
+                    return grupos
+                }else{
+                    throw SQLException("Something unexpected happened while trying to update groups data.")
+                }
+            }
+        }
+    }
 }

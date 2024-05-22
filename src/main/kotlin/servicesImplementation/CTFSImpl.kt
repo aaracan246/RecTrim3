@@ -9,13 +9,14 @@ class CTFSImpl(private val ctfsDAO: CTFSdao): CTFSService {
         return ctfsDAO.insertCTF(ctf)
     }
 
-    override fun getAllCTFS(): List<CTFS>? {
-        return ctfsDAO.getAllCTFS()
+    override fun getCTFParticipation(ctfId: Int, grupoId: Int): CTFS? {
+        return ctfsDAO.getCTFParticipation(grupoId, ctfId)
     }
 
-    override fun getCTFById(id: Int): CTFS? {
-        return ctfsDAO.getCTFById(id)
+    override fun getAllCTFSById(ctfId: Int): List<CTFS>? {
+        return ctfsDAO.getAllCTFSById(ctfId)
     }
+
 
     override fun updateCTFS(ctf: CTFS): CTFS? {
         return ctfsDAO.updateCTFS(ctf)
