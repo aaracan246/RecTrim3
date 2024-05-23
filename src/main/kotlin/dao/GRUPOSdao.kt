@@ -111,7 +111,7 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
     }
 
     override fun updateBestPosCTF(grupoId: Int, CTFId: Int): Boolean {
-        val sql = "UPDATE GRUPOS SET SET MEJORPOSCTFID = ? WHERE GRUPOID = ?"
+        val sql = "UPDATE GRUPOS SET MEJORPOSCTFID = ? WHERE GRUPOID = ?"
 
         return try {
             dataSource.connection.use { connection ->
