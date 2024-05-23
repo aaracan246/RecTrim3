@@ -27,7 +27,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                     val puntuacion = args[3].toIntOrNull()
 
                     if (grupoId != null && ctfId != null && puntuacion != null) {
-                        addParticipation(grupoId, ctfId, puntuacion)                           // DESARROLLAR FUNCIÓN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        addParticipation(grupoId, ctfId, puntuacion)
                     } else {
                         console.writer("All arguments must be integer numbers and cannot be empty.")
                     }
@@ -89,7 +89,6 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         else{
             console.writer("Something unexpected happened while trying to insert the group.")
         }
-
     }
 
     private fun addParticipation(ctfId: Int,  grupoId: Int, puntuacion: Int){       // -p
@@ -104,22 +103,21 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             ctfsImpl.insertCTF(newParticipation)
             console.writer("New CTFS added successfully!")
         }
+
+        calcBestPos(grupoId)
+        console.writer("Participation added / updated successfully for group: $grupoId || $ctfId || $puntuacion.")
     }
 
     //__________________________________________________________________________________________________//
     // Zona de transacciones (WIP):
+
     private fun calcBestPos(grupoId: Int){
         val participations = ctfsImpl.getAllCTFSById(grupoId)
         val bestParticipation = participations?.maxByOrNull{ it.puntuacion!! }
 
-        if (bestParticipation != null){ gruposImpl.  }
-
+        if (bestParticipation != null){ gruposImpl.updateBestPosCTF(grupoId, bestParticipation.CTFid)  }
+        else { console.writer("No participations data found for group: $grupoId.") }
     }
-
-
-
-
-
     //__________________________________________________________________________________________________//
 
     private fun deleteGroup(grupoId: Int){

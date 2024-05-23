@@ -38,8 +38,7 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
                     return CTFS(
                         CTFid = rs.getInt("CTFID"),
                         grupoid = rs.getInt("GRUPOID"),
-                        puntuacion = rs.getInt("MEJORPOSCTFID")
-
+                        puntuacion = rs.getInt("PUNTUACION")
                     )
                 }
                 else{
@@ -55,6 +54,7 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
+                statement.setInt(1, ctfId)
                 val rs = statement.executeQuery()
                 val ctfs = mutableListOf<CTFS>()
                 while (rs!!.next()){

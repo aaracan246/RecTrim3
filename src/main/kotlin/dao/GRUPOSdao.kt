@@ -110,21 +110,18 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
         }
     }
 
-    override fun updateGroups(grupos: GRUPOS): GRUPOS? {
-        val sql = "UPDATE GRUPOS SET GRUPODESC = ?, MEJORPOSCTFID = ?"
+    override fun updateBestPosCTF(grupoId: Int, CTFId: Int): Boolean {
+        val sql = "UPDATE GRUPOS SET SET MEJORPOSCTFID = ? WHERE GRUPOID = ?"
 
-        dataSource.connection.use { connection ->
-            connection.prepareStatement(sql).use { statement ->
-                statement.setString(1, grupos.grupoId.toString())
-                statement.setString(2, grupos.grupoDesc)
-                grupos.mejorPosCTFId?.let { statement.setInt(3, it) }
-                statement.executeUpdate()
-                if (grupos != null){
-                    return grupos
-                }else{
-                    throw SQLException("Something unexpected happened while trying to update groups data.")
+        return try {
+            dataSource.connection.use { connection ->
+                connection.prepareStatement(sql).use { statement ->
+                    statement.setInt(1, CTFId)
+                    statement.setInt(2, grupoId)
+                    statement.executeUpdate() > 0
                 }
             }
-        }
+        } catch (e: SQLException) {
+        throw SQLException("Something unexpected happened while trying to update the best position for group $grupoId.") }
     }
 }
