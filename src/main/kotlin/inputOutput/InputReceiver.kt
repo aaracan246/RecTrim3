@@ -4,6 +4,7 @@ import entity.CTFS
 import entity.GRUPOS
 import servicesImplementation.CTFSImpl
 import servicesImplementation.GRUPOSImpl
+import java.sql.SQLException
 import javax.sql.DataSource
 
 class InputReceiver(private val console: Console, private val gruposImpl: GRUPOSImpl, private val ctfsImpl: CTFSImpl) {
@@ -121,12 +122,23 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     //__________________________________________________________________________________________________//
 
     private fun deleteGroup(grupoId: Int){
-        val successfulDel = gruposImpl.deleteGroup(grupoId)
 
-        if (successfulDel){
-            console.writer("Group deleted successfully: $grupoId.")
-        }
-        else{
+        try {
+            val allCTFParticipations = ctfsImpl.getAllCTFSById(grupoId)
+            allCTFParticipations?.forEach{
+                ctfsImpl.deleteCTF(it.CTFid)
+            }
+
+            val successfulDel = gruposImpl.deleteGroup(grupoId)
+
+            if (successfulDel){
+                console.writer("Group deleted successfully: $grupoId.")
+            }
+            else{
+                console.writer("Something unexpected happened while trying to delete the group.")
+            }
+
+        }catch (e: SQLException){
             console.writer("Something unexpected happened while trying to delete the group.")
         }
     }

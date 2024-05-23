@@ -34,7 +34,7 @@ fun main() {//= application {
 
     val console = Console()
 
-    val arg: Array<String> = arrayOf("-l")
+    val arg: Array<String> = arrayOf("-p", "2", "4", "21")
 
     val dataSourceHikari = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI)
 
