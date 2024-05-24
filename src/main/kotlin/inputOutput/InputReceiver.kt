@@ -1,14 +1,23 @@
 package inputOutput
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.window.Window
 import ds.DataSourceFactory
 import entity.CTFS
 import files.FileManager
+import gui.GUI
 import servicesImplementation.CTFSImpl
 import servicesImplementation.GRUPOSImpl
 import java.sql.SQLException
 
+/**
+ * Esta clase recibirá los distintos argumentos y comprobará tanto su extensión como su funcionalidad
+ * */
 class InputReceiver(private val console: Console, private val gruposImpl: GRUPOSImpl, private val ctfsImpl: CTFSImpl) {
 
+    /**
+     * Esta función recibirá y gestionará los argumentos
+     * */
     fun inputMenu(args: Array<String>){
 
         when(args[0]){
@@ -26,12 +35,13 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
             "-f" -> optionFiles(args)
 
-            "-i" -> optionGUI(args)
-
             else -> console.writer("That is not a valid command.")
         }
     }
 
+    /**
+     * Esta función comprobará la extensión de los argumentos procurados y devolverá una copia de su extensión con el fin de controlar la inserción de args
+     * */
     private fun checkArgs(args: Array<String>, argSize: Int, msg: String): Array<String>? {
         return if (args.size == argSize){
             args.copyOfRange(1, args.size)
@@ -44,6 +54,10 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     //__________________________________________________________________________________________________//
     //Zona de implementación de selector:
 
+
+    /**
+     * Esta función sirve como intermedio entre el menú y la función que implementa el añadir grupo
+     * */
     private fun optionAddGroup(args: Array<String>){
         val arguments = checkArgs(args, 2, "Not enough arguments. Try: -g <grupoDesc>")
         val grupoDesc = args[1]
@@ -51,6 +65,10 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         if (arguments != null) { addGroup(grupoDesc) } else{ console.writer("There was an error while trying to add the group.") }
     }
 
+
+    /**
+     * Esta función sirve como intermedio entre el menú y la función que implementa el añadir una participación
+     * */
     private fun optionAddParticipation(args: Array<String>){
         val arguments = checkArgs(args, 4, "Not enough arguments. Try: -p <grupoId> <ctfId> <puntuacion>")
         if (arguments != null) {
@@ -68,6 +86,9 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
+    /**
+     * Esta función sirve como intermedio entre el menú y la función que implementa el eliminar grupo
+     * */
     private fun optionDeleteGroup(args: Array<String>){
         val arguments = checkArgs(args, 2, "Not enough arguments. Try: -t <grupoId>")
         val grupoId = args[1].toIntOrNull()
@@ -77,6 +98,9 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         } else{ console.writer("Something unexpected happened with the arguments provided.") }
     }
 
+    /**
+     * Esta función sirve como intermedio entre el menú y la función que implementa el eliminar una participación
+     * */
     private fun optionDeleteParticipation(args: Array<String>){
         val arguments = checkArgs(args, 3, "Not enough arguments. Try: -e <ctfId> <grupoId>")
         val ctfId = args[1].toIntOrNull()
@@ -95,6 +119,9 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
+    /**
+     * Esta función sirve como intermedio entre el menú y la función que implementa el mostrar grupo
+     * */
     private fun optionListGroups(args: Array<String>){
         if (args.size == 1) {
             showAllGroupsInfo()
@@ -112,6 +139,10 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
+
+    /**
+     * Esta función sirve como intermedio entre el menú y la función que implementa el mostrar los CTF
+     * */
     private fun optionListCTF(args: Array<String>){
         if (args.size == 1) {
             console.writer("Not enough arguments. Try: -c <ctfId>")
@@ -130,6 +161,11 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
+
+    /**
+     * Esta función sirve como intermedio entre el menú y la función que implementa el leer ficheros
+     * */
+
     private fun optionFiles(args: Array<String>){
         val arguments = checkArgs(args, 2, "Not enough arguments. Try: -f <filepath>")
         val filepath = args[1]
@@ -140,11 +176,12 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
-    private fun optionGUI(args: Array<String>){
-
-    }
     //__________________________________________________________________________________________________//
 
+
+    /**
+     * Esta función implementa la funcionalidad de añadir un grupo
+     * */
     private fun addGroup(grupoDesc: String) {                   // -g
         val grupo = gruposImpl.insertGroup(grupoDesc)
 
@@ -156,6 +193,9 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
+    /**
+     * Esta función implementa la funcionalidad de añadir una participación
+     * */
     private fun addParticipation(ctfId: Int,  grupoId: Int, puntuacion: Int){       // -p
         val participationExists = ctfsImpl.getCTFParticipation(ctfId, grupoId)
 
@@ -176,6 +216,9 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     //__________________________________________________________________________________________________//
     // Zona de transacciones (WIP):
 
+    /**
+     * Esta función calcula la mejor posición de todos los ctf del grupo deseado y los updateo
+     * */
     private fun calcBestPos(grupoId: Int){
         val participations = ctfsImpl.getAllCTFSById(grupoId)
         val bestParticipation = participations?.maxByOrNull{ it.puntuacion?: 0 }
@@ -184,6 +227,9 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         else { console.writer("No participations data found for group: $grupoId.") }
     }
 
+    /**
+     * Esta función implementa la funcionalidad de eliminar un grupo
+     * */
     private fun deleteGroup(grupoId: Int){
         val connection = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI).connection
 
@@ -219,8 +265,14 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
+    /**
+     * Esta función implementa la funcionalidad de eliminar una participación
+     * */
     private fun deleteParticipation(ctfId: Int, grupoId: Int){
         try {
+
+            gruposImpl.updateBestPosCTF(grupoId, null)
+
             val participationExists = ctfsImpl.getCTFParticipation(ctfId, grupoId)
             if (participationExists != null){
                 ctfsImpl.deleteCTF(ctfId, grupoId)
@@ -238,6 +290,9 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     //__________________________________________________________________________________________________//
 
 
+    /**
+     * Esta función implementa la funcionalidad de mostrar la información según ID del grupo
+     * */
     private fun showGroupInfo(grupoId: Int){                    // -l
         val grupo = gruposImpl.getGroupById(grupoId)
 
@@ -248,6 +303,10 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
+
+    /**
+     * Esta función implementa la funcionalidad de mostrar todos los grupos
+     * */
     private fun showAllGroupsInfo(){                            // -l
         val grupo = gruposImpl.getAllGroups()
 
@@ -259,6 +318,10 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         else{ console.writer("No data found.")}
     }
 
+
+    /**
+     * Esta función implementa la funcionalidad de mostrar todas las participaciones de un grupo por ID
+     * */
     private fun showCTFParticipation(ctfId: Int) {              // -c
         val participations = ctfsImpl.getAllCTFSById(ctfId)
 

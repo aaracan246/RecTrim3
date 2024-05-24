@@ -1,57 +1,41 @@
-import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import dao.CTFSdao
-import dao.GRUPOSdao
+import androidx.compose.ui.window.application
+import dao.DAOFactory
 import ds.DataSourceFactory
 import files.FileManager
+import gui.GUI
 import inputOutput.Console
 import inputOutput.InputReceiver
 import servicesImplementation.CTFSImpl
 import servicesImplementation.GRUPOSImpl
-import javax.xml.crypto.Data
+import viewmodel.ViewModel
 
-@Composable
-@Preview
-fun App() {
-    var text by remember { mutableStateOf("Hello, World!") }
 
-    MaterialTheme {
-        Button(onClick = {
-            text = "Hello, Desktop!"
-        }) {
-            Text(text)
-        }
-    }
-}
-
-fun main() {//= application {
+fun main(args: Array<String>) = application{
 
     val console = Console()
 
-    val arg: Array<String> = arrayOf("-e", "1", "2")
+
+    val daoFactory = DAOFactory()
+
+
+    val args: Array<String> = arrayOf("-i")
 
     val dataSourceHikari = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI)
 
-    val gruposDAO = GRUPOSdao(dataSourceHikari)
-    val gruposService = GRUPOSImpl(gruposDAO)
+    val (ctfsdao, gruposdao) = daoFactory.getDAO(dataSourceHikari)
+    //val gruposDAO = GRUPOSdao(dataSourceHikari)
+    val gruposService = GRUPOSImpl(gruposdao)
 
-    val ctfs = CTFSdao(dataSourceHikari)
-    val ctfsService = CTFSImpl(ctfs)
+    //val ctfs = CTFSdao(dataSourceHikari)
+    val ctfsService = CTFSImpl(ctfsdao)
 
     val inputReceiver = InputReceiver(console, gruposService, ctfsService)
     val fileManager = FileManager(console, inputReceiver)
+    val viewModel = ViewModel(gruposService)
 
-    inputReceiver.inputMenu(arg)
+    if (args.isNotEmpty() && args[0] == "-i"){
+        GUI(gruposService, viewModel).App(::exitApplication)
+    }
 
-
-//    Window(onCloseRequest = ::exitApplication) {
-//        App()
-//    }
+    inputReceiver.inputMenu(args)
 }
