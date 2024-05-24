@@ -1,71 +1,31 @@
 package inputOutput
 
 import entity.CTFS
-import entity.GRUPOS
+import files.FileManager
 import servicesImplementation.CTFSImpl
 import servicesImplementation.GRUPOSImpl
 import java.sql.SQLException
-import javax.sql.DataSource
 
-class InputReceiver(private val console: Console, private val gruposImpl: GRUPOSImpl, private val ctfsImpl: CTFSImpl) {
+class InputReceiver(private val console: Console, private val gruposImpl: GRUPOSImpl, private val ctfsImpl: CTFSImpl, private val fileManager: FileManager) {
 
     fun inputMenu(args: Array<String>){
 
         when(args[0]){
-            "-g" -> {
-                val arguments = checkArgs(args, 2, "Not enough arguments. Try: -g <grupoDesc>")
-                val grupoDesc = args[1]
+            "-g" -> optionAddGroup(args)
 
-                if (arguments != null) { addGroup(grupoDesc) } else{ console.writer("There was an error while trying to add the group.") }
-            }
+            "-p" -> optionAddParticipation(args)
 
+            "-t" -> optionDeleteGroup(args)
 
-            "-p" -> {
-                val arguments = checkArgs(args, 4, "Not enough arguments. Try: -p <grupoId> <ctfId> <puntuacion>")
-                if (arguments != null) {
-                    val grupoId = args[1].toIntOrNull()
-                    val ctfId = args[2].toIntOrNull()
-                    val puntuacion = args[3].toIntOrNull()
+            "-e" -> optionDeleteParticipation(args)
 
-                    if (grupoId != null && ctfId != null && puntuacion != null) {
-                        addParticipation(grupoId, ctfId, puntuacion)
-                    } else {
-                        console.writer("All arguments must be integer numbers and cannot be empty.")
-                    }
-                } else {
-                    console.writer("Something unexpected happened with the arguments provided.")
-                }
-            }
+            "-l" -> optionListGroups(args)
 
-            "-t" -> {
-                val arguments = checkArgs(args, 2, "Not enough arguments. Try: -t <grupoId>")
-                val grupoId = args[1].toIntOrNull()
+            "-c" -> optionListCTF(args)
 
-                if (arguments != null) {
-                    if (grupoId != null) { deleteGroup(grupoId) } else { console.writer("GroupID must be an integer number and cannot be empty.") }
-                } else{ console.writer("Something unexpected happened with the arguments provided.") }
-            }
+            "-f" -> optionFiles(args)
 
-
-
-            "-e" -> ""
-
-            "-l" -> {
-                val arguments = checkArgs(args, 2, "Not enough arguments. Try: -l <grupoId>")
-                val grupoId = args[1].toIntOrNull()
-
-                if (arguments != null){
-                    if (grupoId == null){ showAllGroupsInfo() } else { showGroupInfo(grupoId) }
-                } else{ console.writer("Something unexpected happened with the arguments provided.") }
-            }
-
-
-
-            "-c" -> ""
-
-            "-f" -> ""
-
-            "-i" -> ""
+            "-i" -> optionGUI(args)
 
             else -> console.writer("That is not a valid command.")
         }
@@ -80,6 +40,96 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             null
         }
     }
+    //__________________________________________________________________________________________________//
+    //Zona de implementación de selector:
+    private fun optionAddGroup(args: Array<String>){
+        val arguments = checkArgs(args, 2, "Not enough arguments. Try: -g <grupoDesc>")
+        val grupoDesc = args[1]
+
+        if (arguments != null) { addGroup(grupoDesc) } else{ console.writer("There was an error while trying to add the group.") }
+    }
+
+    private fun optionAddParticipation(args: Array<String>){
+        val arguments = checkArgs(args, 4, "Not enough arguments. Try: -p <grupoId> <ctfId> <puntuacion>")
+        if (arguments != null) {
+            val grupoId = args[1].toIntOrNull()
+            val ctfId = args[2].toIntOrNull()
+            val puntuacion = args[3].toIntOrNull()
+
+            if (grupoId != null && ctfId != null && puntuacion != null) {
+                addParticipation(grupoId, ctfId, puntuacion)
+            } else {
+                console.writer("All arguments must be integer numbers and cannot be empty.")
+            }
+        } else {
+            console.writer("Something unexpected happened with the arguments provided.")
+        }
+    }
+
+    private fun optionDeleteGroup(args: Array<String>){
+        val arguments = checkArgs(args, 2, "Not enough arguments. Try: -t <grupoId>")
+        val grupoId = args[1].toIntOrNull()
+
+        if (arguments != null) {
+            if (grupoId != null) { deleteGroup(grupoId) } else { console.writer("GroupID must be an integer number and cannot be empty.") }
+        } else{ console.writer("Something unexpected happened with the arguments provided.") }
+    }
+
+    private fun optionDeleteParticipation(args: Array<String>){
+        val arguments = checkArgs(args, 3, "Not enough arguments. Try: -e <ctfId> <grupoId>")
+        val ctfId = args[1].toIntOrNull()
+        val grupoId = args[2].toIntOrNull()
+
+        if (arguments != null){
+            if (ctfId != null && grupoId != null){
+                deleteParticipation(ctfId, grupoId)
+            }
+            else{
+                console.writer("Both IDs must be integer numbers and not be null.")
+            }
+        }
+        else{
+            console.writer("Something unexpected happened while trying to delete the participation.")
+        }
+    }
+
+    private fun optionListGroups(args: Array<String>){
+        val arguments = checkArgs(args, 2, "Not enough arguments. Try: -l <grupoId>")
+        val grupoId = args[1].toIntOrNull()
+
+        if (arguments != null){
+            if (grupoId == null){ showAllGroupsInfo() } else { showGroupInfo(grupoId) }
+        } else{ console.writer("Something unexpected happened with the arguments provided.") }
+    }
+
+    private fun optionListCTF(args: Array<String>){
+        val arguments = checkArgs(args, 2, "Not enough arguments. Try: -c <ctfId>")
+        val ctfId = args[1].toIntOrNull()
+        if (arguments != null) {
+            if (ctfId != null) {
+                showCTFParticipation(ctfId)
+            } else {
+                console.writer("CTFID must be an integer number and cannot be empty.")
+            }
+        } else {
+            console.writer("Something unexpected happened with the arguments provided.")
+        }
+    }
+
+    private fun optionFiles(args: Array<String>){
+        val arguments = checkArgs(args, 2, "Not enough arguments. Try: -f <filepath>")
+        val filepath = args[1]
+        if (arguments != null) {
+            fileManager.fileRead(filepath)
+        } else {
+            console.writer("Something unexpected happened with the arguments provided.")
+        }
+    }
+
+    private fun optionGUI(args: Array<String>){
+
+    }
+    //__________________________________________________________________________________________________//
 
     private fun addGroup(grupoDesc: String) {                   // -g
         val grupo = gruposImpl.insertGroup(grupoDesc)
@@ -143,6 +193,23 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
     }
 
+    private fun deleteParticipation(ctfId: Int, grupoId: Int){
+        try {
+            val participationExists = ctfsImpl.getCTFParticipation(ctfId, grupoId)
+            if (participationExists != null){
+                ctfsImpl.deleteCTF(ctfId)
+                console.writer("Participation deleted successfully: CTFID: $ctfId || GROUPID: $grupoId.")
+                calcBestPos(grupoId)
+            }
+            else{
+                console.writer("No participation found for: CTFID: $ctfId || GROUPID: $grupoId.")
+            }
+        }
+        catch (e: SQLException){
+            console.writer("Something unexpected happened while trying to delete the participation.")
+        }
+    }
+
     private fun showGroupInfo(grupoId: Int){                    // -l
         val grupo = gruposImpl.getGroupById(grupoId)
 
@@ -162,5 +229,18 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             }
         }
         else{ console.writer("No data found.")}
+    }
+
+    private fun showCTFParticipation(ctfId: Int) {              // -c
+        val participations = ctfsImpl.getAllCTFSById(ctfId)
+
+        if (!participations.isNullOrEmpty()) {
+            participations.forEach {
+                console.writer("Group ID: ${it.grupoid}, puntuacion: ${it.puntuacion}.")
+            }
+        }
+        else {
+            console.writer("No participations found for CTFID $ctfId.")
+        }
     }
 }

@@ -50,7 +50,7 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
 
 
     override fun getAllCTFSById(ctfId: Int): List<CTFS>? {
-        val sql = "SELECT * FROM CTFS WHERE GRUPOID = ?"
+        val sql = "SELECT * FROM CTFS WHERE GRUPOID = ? ORDER BY PUNTUACION DESC"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
