@@ -14,9 +14,7 @@ fun main(args: Array<String>) = application{
 
     val console = Console()
 
-
     val daoFactory = DAOFactory()
-
 
     val args: Array<String> = arrayOf("-i")
 
