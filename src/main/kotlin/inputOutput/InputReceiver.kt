@@ -6,7 +6,7 @@ import servicesImplementation.CTFSImpl
 import servicesImplementation.GRUPOSImpl
 import java.sql.SQLException
 
-class InputReceiver(private val console: Console, private val gruposImpl: GRUPOSImpl, private val ctfsImpl: CTFSImpl, private val fileManager: FileManager) {
+class InputReceiver(private val console: Console, private val gruposImpl: GRUPOSImpl, private val ctfsImpl: CTFSImpl) {
 
     fun inputMenu(args: Array<String>){
 
@@ -42,6 +42,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     }
     //__________________________________________________________________________________________________//
     //Zona de implementación de selector:
+
     private fun optionAddGroup(args: Array<String>){
         val arguments = checkArgs(args, 2, "Not enough arguments. Try: -g <grupoDesc>")
         val grupoDesc = args[1]
@@ -94,12 +95,18 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     }
 
     private fun optionListGroups(args: Array<String>){
-        val arguments = checkArgs(args, 2, "Not enough arguments. Try: -l <grupoId>")
-        val grupoId = args[1].toIntOrNull()
-
-        if (arguments != null){
-            if (grupoId == null){ showAllGroupsInfo() } else { showGroupInfo(grupoId) }
-        } else{ console.writer("Something unexpected happened with the arguments provided.") }
+        if (args.size == 1) {
+            showAllGroupsInfo()
+        } else if (args.size == 2) {
+            val grupoId = args[1].toIntOrNull()
+            if (grupoId != null) {
+                showGroupInfo(grupoId)
+            } else {
+                console.writer("GroupID must be an integer number.")
+            }
+        } else {
+            console.writer("Not enough arguments. Try: -l <grupoId>")
+        }
     }
 
     private fun optionListCTF(args: Array<String>){
@@ -120,7 +127,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         val arguments = checkArgs(args, 2, "Not enough arguments. Try: -f <filepath>")
         val filepath = args[1]
         if (arguments != null) {
-            fileManager.fileRead(filepath)
+            FileManager(console, this).fileRead(filepath)
         } else {
             console.writer("Something unexpected happened with the arguments provided.")
         }
@@ -164,7 +171,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
     private fun calcBestPos(grupoId: Int){
         val participations = ctfsImpl.getAllCTFSById(grupoId)
-        val bestParticipation = participations?.maxByOrNull{ it.puntuacion!! }
+        val bestParticipation = participations?.maxByOrNull{ it.puntuacion?: 0 }
 
         if (bestParticipation != null){ gruposImpl.updateBestPosCTF(grupoId, bestParticipation.CTFid)  }
         else { console.writer("No participations data found for group: $grupoId.") }

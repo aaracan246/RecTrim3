@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import dao.CTFSdao
 import dao.GRUPOSdao
 import ds.DataSourceFactory
+import files.FileManager
 import inputOutput.Console
 import inputOutput.InputReceiver
 import servicesImplementation.CTFSImpl
@@ -34,7 +35,7 @@ fun main() {//= application {
 
     val console = Console()
 
-    val arg: Array<String> = arrayOf("-p", "2", "4", "21")
+    val arg: Array<String> = arrayOf("-l")
 
     val dataSourceHikari = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI)
 
@@ -45,6 +46,7 @@ fun main() {//= application {
     val ctfsService = CTFSImpl(ctfs)
 
     val inputReceiver = InputReceiver(console, gruposService, ctfsService)
+    val fileManager = FileManager(console, inputReceiver)
 
     inputReceiver.inputMenu(arg)
 

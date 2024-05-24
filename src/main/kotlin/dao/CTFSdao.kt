@@ -78,13 +78,13 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
 
 
     override fun updateCTFS(ctf: CTFS): CTFS? {
-        val sql = "UPDATE CTFS SET CTFID = ?, GRUPOID = ?, PUNTUACION = ?"
+        val sql = "UPDATE CTFS SET PUNTUACION = ? WHERE CTFID = ? AND GRUPOID = ?"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
-                statement.setInt(1, ctf.CTFid)
-                statement.setInt(2, ctf.grupoid)
-                ctf.puntuacion?.let { statement.setInt(3, it) }
+                ctf.puntuacion?.let { statement.setInt(1, it) }
+                statement.setInt(2, ctf.CTFid)
+                statement.setInt(3, ctf.grupoid)
                 statement.executeUpdate()
                 if (ctf != null){
                     return ctf
