@@ -1,5 +1,6 @@
 package inputOutput
 
+import ds.DataSourceFactory
 import entity.CTFS
 import files.FileManager
 import servicesImplementation.CTFSImpl
@@ -97,29 +98,35 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     private fun optionListGroups(args: Array<String>){
         if (args.size == 1) {
             showAllGroupsInfo()
-        } else if (args.size == 2) {
+        }
+        else if (args.size == 2) {
             val grupoId = args[1].toIntOrNull()
             if (grupoId != null) {
                 showGroupInfo(grupoId)
             } else {
                 console.writer("GroupID must be an integer number.")
             }
-        } else {
+        }
+        else {
             console.writer("Not enough arguments. Try: -l <grupoId>")
         }
     }
 
     private fun optionListCTF(args: Array<String>){
-        val arguments = checkArgs(args, 2, "Not enough arguments. Try: -c <ctfId>")
-        val ctfId = args[1].toIntOrNull()
-        if (arguments != null) {
+        if (args.size == 1) {
+            console.writer("Not enough arguments. Try: -c <ctfId>")
+        }
+        else if (args.size == 2) {
+            val ctfId = args[1].toIntOrNull()
             if (ctfId != null) {
                 showCTFParticipation(ctfId)
-            } else {
+            }
+            else {
                 console.writer("CTFID must be an integer number and cannot be empty.")
             }
-        } else {
-            console.writer("Something unexpected happened with the arguments provided.")
+        }
+        else {
+            console.writer("Too many arguments. Try: -c <ctfId>")
         }
     }
 
@@ -176,27 +183,39 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         if (bestParticipation != null){ gruposImpl.updateBestPosCTF(grupoId, bestParticipation.CTFid)  }
         else { console.writer("No participations data found for group: $grupoId.") }
     }
-    //__________________________________________________________________________________________________//
 
     private fun deleteGroup(grupoId: Int){
+        val connection = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI).connection
 
         try {
+
+            connection.autoCommit = false
+
+            gruposImpl.updateBestPosCTF(grupoId, null)
+
             val allCTFParticipations = ctfsImpl.getAllCTFSById(grupoId)
-            allCTFParticipations?.forEach{
-                ctfsImpl.deleteCTF(it.CTFid)
+            allCTFParticipations?.forEach {
+                ctfsImpl.deleteCTF(it.CTFid, it.grupoid )
             }
 
             val successfulDel = gruposImpl.deleteGroup(grupoId)
 
             if (successfulDel){
+                connection.commit()
                 console.writer("Group deleted successfully: $grupoId.")
             }
             else{
-                console.writer("Something unexpected happened while trying to delete the group.")
+                connection.rollback()
+                console.writer("Something unexpected happened while trying to delete the group. $grupoId.")
             }
 
         }catch (e: SQLException){
-            console.writer("Something unexpected happened while trying to delete the group.")
+            connection.rollback()
+            console.writer("Something unexpected happened while trying to delete the group. $grupoId.")
+        }
+        finally {
+            connection.autoCommit = true
+            connection.close()
         }
     }
 
@@ -204,7 +223,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         try {
             val participationExists = ctfsImpl.getCTFParticipation(ctfId, grupoId)
             if (participationExists != null){
-                ctfsImpl.deleteCTF(ctfId)
+                ctfsImpl.deleteCTF(ctfId, grupoId)
                 console.writer("Participation deleted successfully: CTFID: $ctfId || GROUPID: $grupoId.")
                 calcBestPos(grupoId)
             }
@@ -212,10 +231,12 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                 console.writer("No participation found for: CTFID: $ctfId || GROUPID: $grupoId.")
             }
         }
-        catch (e: SQLException){
+        catch (e: Exception){
             console.writer("Something unexpected happened while trying to delete the participation.")
         }
     }
+    //__________________________________________________________________________________________________//
+
 
     private fun showGroupInfo(grupoId: Int){                    // -l
         val grupo = gruposImpl.getGroupById(grupoId)
@@ -243,7 +264,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
         if (!participations.isNullOrEmpty()) {
             participations.forEach {
-                console.writer("Group ID: ${it.grupoid}, puntuacion: ${it.puntuacion}.")
+                console.writer("Group ID: ${it.grupoid}, CTF ID: ${it.CTFid}, puntuacion: ${it.puntuacion}.", true)
             }
         }
         else {

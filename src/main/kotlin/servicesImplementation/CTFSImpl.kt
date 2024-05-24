@@ -22,8 +22,8 @@ class CTFSImpl(private val ctfsDAO: CTFSdao): CTFSService {
         return ctfsDAO.updateCTFS(ctf)
     }
 
-    override fun deleteCTF(id: Int): Boolean {
-        return ctfsDAO.deleteCTF(id)
+    override fun deleteCTF(ctfId: Int, grupoId: Int): Boolean {
+        return ctfsDAO.deleteCTF(ctfId, grupoId)
     }
 
 }

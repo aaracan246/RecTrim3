@@ -36,8 +36,8 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
                 val rs = statement.executeQuery()
                 if (rs.next()){
                     return CTFS(
-                        CTFid = rs.getInt("CTFID"),
                         grupoid = rs.getInt("GRUPOID"),
+                        CTFid = rs.getInt("CTFID"),
                         puntuacion = rs.getInt("PUNTUACION")
                     )
                 }
@@ -49,19 +49,19 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
     }
 
 
-    override fun getAllCTFSById(ctfId: Int): List<CTFS>? {
+    override fun getAllCTFSById(grupoId: Int): List<CTFS>? {
         val sql = "SELECT * FROM CTFS WHERE GRUPOID = ? ORDER BY PUNTUACION DESC"
 
         dataSource.connection.use { connection ->
             connection.prepareStatement(sql).use { statement ->
-                statement.setInt(1, ctfId)
+                statement.setInt(1, grupoId)
                 val rs = statement.executeQuery()
                 val ctfs = mutableListOf<CTFS>()
                 while (rs!!.next()){
                     ctfs.add(
                         CTFS(
-                            CTFid = rs.getInt("CTFID"),
                             grupoid = rs.getInt("GRUPOID"),   // Quizás recuperar ID - checkear DB
+                            CTFid = rs.getInt("CTFID"),
                             puntuacion = rs.getInt("PUNTUACION")
                         )
                     )
@@ -96,19 +96,20 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
         }
     }
 
-    override fun deleteCTF(id: Int): Boolean {
-        val sql = "DELETE FROM CTFS WHERE CTFID = (?)"
+    override fun deleteCTF(ctfId: Int, grupoId: Int): Boolean {
+        val sql = "DELETE FROM CTFS WHERE CTFID = ? AND GRUPOID = ?"
         try {
             dataSource.connection.use { connection ->
                 connection.prepareStatement(sql).use { statement ->
-                    statement.setString(1, id.toString())
+                    statement.setInt(1, ctfId)
+                    statement.setInt(2, grupoId)
                     statement.executeUpdate()
                     return true
                 }
             }
         }
         catch (e: Exception){
-            throw SQLException("Something unexpected happened while trying to update groups data.")
+            throw SQLException("Something unexpected happened while trying to delete participation data.")
         }
     }
 }

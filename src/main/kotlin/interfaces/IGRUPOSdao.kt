@@ -8,5 +8,5 @@ interface IGRUPOSdao {
     fun getGroupById(id: Int): GRUPOS?
     fun updateGroups(grupos: GRUPOS): GRUPOS?
     fun deleteGroup(id: Int): Boolean
-    fun updateBestPosCTF(grupoId: Int, CTFId: Int): Boolean
+    fun updateBestPosCTF(grupoId: Int, CTFId: Int?): Boolean
 }

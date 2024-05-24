@@ -110,13 +110,17 @@ class GRUPOSdao(private val dataSource: DataSource): IGRUPOSdao {
         }
     }
 
-    override fun updateBestPosCTF(grupoId: Int, CTFId: Int): Boolean {
+    override fun updateBestPosCTF(grupoId: Int, CTFId: Int?): Boolean {
         val sql = "UPDATE GRUPOS SET MEJORPOSCTFID = ? WHERE GRUPOID = ?"
 
         return try {
             dataSource.connection.use { connection ->
                 connection.prepareStatement(sql).use { statement ->
-                    statement.setInt(1, CTFId)
+                    if (CTFId != null) {
+                        statement.setInt(1, CTFId)
+                    } else {
+                        statement.setNull(1, java.sql.Types.INTEGER)
+                    }
                     statement.setInt(2, grupoId)
                     statement.executeUpdate() > 0
                 }

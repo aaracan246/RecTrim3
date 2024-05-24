@@ -27,7 +27,7 @@ class GRUPOSImpl(private val gruposDAO: GRUPOSdao): GRUPOSService {
         return gruposDAO.deleteGroup(id)
     }
 
-    override fun updateBestPosCTF(grupoId: Int, CTFId: Int): Boolean {
+    override fun updateBestPosCTF(grupoId: Int, CTFId: Int?): Boolean {
         return gruposDAO.updateBestPosCTF(grupoId, CTFId)
     }
 
