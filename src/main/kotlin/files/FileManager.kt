@@ -13,13 +13,12 @@ class FileManager(private val console: Console, private val inputReceiver: Input
     }
 
     override fun fileRead(filepath: String) {
-        val file = File(filepath)
-
         if (!fileExists(filepath)){
             console.writer("File does not exist or something is wrong with the path. $filepath.")
         }
 
         try {
+            val file = File(filepath)
             file.forEachLine {
                 val trimmedLine = it.trim()
                 if (trimmedLine.isNotEmpty() && !trimmedLine.startsWith("#")) {

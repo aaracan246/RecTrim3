@@ -1,7 +1,7 @@
 package dao
 
 import dao.enumClass.DAOType
-import files.FileManager
+import ds.connection.ConnectionManager
 import interfaces.ICTFdao
 import interfaces.IGRUPOSdao
 import java.io.File
@@ -11,10 +11,10 @@ import javax.sql.DataSource
  * Esta clase gestiona los DAOs que vayan a ser utilizados
  * */
 class DAOFactory {
-    fun getDAO(dataSource: DataSource): Pair<ICTFdao?, IGRUPOSdao?>{
+    fun getDAO(connectionManager: ConnectionManager): Pair<ICTFdao?, IGRUPOSdao?>{
         val readType = readType(File("configSQL.txt"))
         return when(readType) {
-            DAOType.DATASOURCE.desc -> Pair(CTFSdao(dataSource), GRUPOSdao(dataSource))
+            DAOType.DATASOURCE.desc -> Pair(CTFSdao(connectionManager), GRUPOSdao(connectionManager))
 
             DAOType.XML.desc -> TODO()
 

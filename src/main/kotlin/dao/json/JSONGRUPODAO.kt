@@ -20,7 +20,7 @@ class JSONGRUPODAO: IGRUPOSdao {
         TODO("Not yet implemented")
     }
 
-    override fun deleteGroup(id: Int): Boolean {
+    override fun deleteGroup(id: Int): Boolean{
         TODO("Not yet implemented")
     }
 

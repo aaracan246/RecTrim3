@@ -1,6 +1,7 @@
 import androidx.compose.ui.window.application
 import dao.DAOFactory
 import ds.DataSourceFactory
+import ds.connection.ConnectionManager
 import files.FileManager
 import gui.GUI
 import inputOutput.Console
@@ -14,21 +15,22 @@ fun main(args: Array<String>) = application{
 
     val console = Console()
 
-    val daoFactory = DAOFactory()
+    //val args: Array<String> = arrayOf("-f", "fileToRead.txt")
 
-    val args: Array<String> = arrayOf("-i")
+    val daoFactory = DAOFactory()
 
     val dataSourceHikari = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI)
 
-    val (ctfsdao, gruposdao) = daoFactory.getDAO(dataSourceHikari)
-    //val gruposDAO = GRUPOSdao(dataSourceHikari)
+    val connectionManager = ConnectionManager(dataSourceHikari)
+
+    val (ctfsdao, gruposdao) = daoFactory.getDAO(connectionManager)
+
     val gruposService = GRUPOSImpl(gruposdao)
 
-    //val ctfs = CTFSdao(dataSourceHikari)
     val ctfsService = CTFSImpl(ctfsdao)
 
     val inputReceiver = InputReceiver(console, gruposService, ctfsService)
-    val fileManager = FileManager(console, inputReceiver)
+
     val viewModel = ViewModel(gruposService)
 
     if (args.isNotEmpty() && args[0] == "-i"){

@@ -13,15 +13,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role.Companion.Button
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.SemanticsProperties.Text
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.KeyboardType.Companion.Text
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
 import servicesImplementation.GRUPOSImpl
 import viewmodel.ViewModel
 
@@ -34,7 +28,9 @@ class GUI(private val gruposImpl: GRUPOSImpl, private val viewModel: ViewModel) 
 
             Window(onCloseRequest = onExitApp) {
 
-                var searchText by remember { mutableStateOf("") }
+                var filterText by remember { mutableStateOf("") }
+                var filteredGroups by remember { mutableStateOf(viewModel.grupos) }
+
 
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -44,7 +40,7 @@ class GUI(private val gruposImpl: GRUPOSImpl, private val viewModel: ViewModel) 
                                             .border(1.dp, color = Color.Black)
                                             .background(color = Color.Cyan)
                                             .fillMaxWidth()) {
-                        itemsIndexed(viewModel.grupos){index, grupo ->
+                        itemsIndexed(filteredGroups){index, grupo ->
                             Row(horizontalArrangement = Arrangement.Center,
                                 modifier = Modifier.fillMaxSize()) {
                             Text("${grupo.grupoId} ${grupo.grupoDesc} ${grupo.mejorPosCTFId}", fontSize = 20.sp)
@@ -53,20 +49,24 @@ class GUI(private val gruposImpl: GRUPOSImpl, private val viewModel: ViewModel) 
                     }
 
                     OutlinedTextField(
-                        value = searchText,
-                        onValueChange = { searchText = it },
-                        label = { Text("Search by ID") }
+                        value = filterText,
+                        onValueChange = { filterText = it },
+                        label = { Text("Search by group name") }
                     )
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Button(onClick = { }) {
+                        Button(onClick = { filteredGroups = viewModel.filter(filterText)}) {
                             Text("Show")
                         }
 
-                        Button(onClick = { }) {
+                        Button(onClick = {
+                            val filePath = "logs.txt"
+                            viewModel.exportar(filePath, filteredGroups)
+                        }
+                        ) {
                             Text("Export")
                         }
                     }

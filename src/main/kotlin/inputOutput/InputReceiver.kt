@@ -47,7 +47,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             args.copyOfRange(1, args.size)
         }
         else{
-            console.writer(msg)
+            console.writer("There was an unexpected error while checking the arguments provided.")
             null
         }
     }
@@ -167,13 +167,13 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
      * */
 
     private fun optionFiles(args: Array<String>){
-        val arguments = checkArgs(args, 2, "Not enough arguments. Try: -f <filepath>")
-        val filepath = args[1]
-        if (arguments != null) {
-            FileManager(console, this).fileRead(filepath)
-        } else {
-            console.writer("Something unexpected happened with the arguments provided.")
+        if (args.size < 2){
+            console.writer("Not enough arguments. Try -f <filepath>")
+            return
         }
+
+        val filepath = args[1]
+        FileManager(console, this).fileRead(filepath)
     }
 
     //__________________________________________________________________________________________________//

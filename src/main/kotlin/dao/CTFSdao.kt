@@ -1,17 +1,20 @@
 package dao
 
+import ds.connection.ConnectionManager
 import entity.CTFS
 import interfaces.ICTFdao
 import java.sql.SQLException
 import javax.sql.DataSource
 
-class CTFSdao(private val dataSource: DataSource): ICTFdao{
+class CTFSdao(private val connectionManager: ConnectionManager): ICTFdao{
 
     override fun insertCTF(ctf: CTFS): CTFS? {
         val sql = "INSERT INTO CTFS (CTFID, GRUPOID, PUNTUACION) VALUES (?, ?, ?)"
+        val connection = connectionManager.getConnection()
 
-        dataSource.connection.use { connection ->
-            connection.prepareStatement(sql).use { statement ->
+        try {
+
+            connection?.prepareStatement(sql)?.use { statement ->
                 statement.setInt(1, ctf.CTFid)
                 statement.setInt(2, ctf.grupoid)
                 ctf.puntuacion?.let { statement.setInt(3, it) }
@@ -23,14 +26,19 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
                     throw SQLException("Something unexpected happened while trying to insert the data.")
                 }
             }
+        }catch (e: Exception){
+            throw SQLException("There was an error while trying to connect to the database.")
         }
+        return null
     }
 
     override fun getCTFParticipation(grupoId: Int, ctfId: Int): CTFS? {
         val sql = "SELECT * FROM CTFS WHERE GRUPOID = ? AND CTFID = ?"
+        val connection = connectionManager.getConnection()
 
-        dataSource.connection.use { connection ->
-            connection.prepareStatement(sql).use { statement ->
+        try {
+
+            connection?.prepareStatement(sql)?.use { statement ->
                 statement.setInt(1, grupoId)
                 statement.setInt(2, ctfId)
                 val rs = statement.executeQuery()
@@ -45,16 +53,21 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
                     return null
                 }
             }
+        }catch (e: Exception){
+            throw SQLException("There was an error while trying to connect to the database.")
         }
+        return null
     }
 
 
-    override fun getAllCTFSById(grupoId: Int): List<CTFS>? {
+    override fun getAllCTFSById(ctfId: Int): List<CTFS>? {
         val sql = "SELECT * FROM CTFS WHERE GRUPOID = ? ORDER BY PUNTUACION DESC"
+        val connection = connectionManager.getConnection()
 
-        dataSource.connection.use { connection ->
-            connection.prepareStatement(sql).use { statement ->
-                statement.setInt(1, grupoId)
+        try {
+
+            connection?.prepareStatement(sql)?.use { statement ->
+                statement.setInt(1, ctfId)
                 val rs = statement.executeQuery()
                 val ctfs = mutableListOf<CTFS>()
                 while (rs!!.next()){
@@ -73,15 +86,20 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
                     throw SQLException("Something unexpected happened while trying to retrieve groups data.")
                 }
             }
+        }catch (e: Exception){
+            throw SQLException("There was an error while trying to connect to the database.")
         }
+        return null
     }
 
 
     override fun updateCTFS(ctf: CTFS): CTFS? {
         val sql = "UPDATE CTFS SET PUNTUACION = ? WHERE CTFID = ? AND GRUPOID = ?"
+        val connection = connectionManager.getConnection()
 
-        dataSource.connection.use { connection ->
-            connection.prepareStatement(sql).use { statement ->
+        try {
+
+            connection?.prepareStatement(sql)?.use { statement ->
                 ctf.puntuacion?.let { statement.setInt(1, it) }
                 statement.setInt(2, ctf.CTFid)
                 statement.setInt(3, ctf.grupoid)
@@ -93,23 +111,27 @@ class CTFSdao(private val dataSource: DataSource): ICTFdao{
                     throw SQLException("Something unexpected happened while trying to update groups data.")
                 }
             }
+        } catch (e: Exception){
+            throw SQLException("There was an error while trying to connect to the database.")
         }
+        return null
     }
 
     override fun deleteCTF(ctfId: Int, grupoId: Int): Boolean {
         val sql = "DELETE FROM CTFS WHERE CTFID = ? AND GRUPOID = ?"
+        val connection = connectionManager.getConnection()
+
         try {
-            dataSource.connection.use { connection ->
-                connection.prepareStatement(sql).use { statement ->
+                connection?.prepareStatement(sql)?.use { statement ->
                     statement.setInt(1, ctfId)
                     statement.setInt(2, grupoId)
                     statement.executeUpdate()
                     return true
                 }
-            }
         }
         catch (e: Exception){
             throw SQLException("Something unexpected happened while trying to delete participation data.")
         }
+        return false
     }
 }
