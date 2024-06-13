@@ -29,9 +29,9 @@ fun main(args: Array<String>) = application{
 
     val ctfsService = CTFSImpl(ctfsdao)
 
-    val inputReceiver = InputReceiver(console, gruposService, ctfsService)
+    val inputReceiver = InputReceiver(console, gruposService, ctfsService, connectionManager)
 
-    val viewModel = ViewModel(gruposService)
+    val viewModel = ViewModel(gruposService, connectionManager.getConnection())
 
     if (args.isNotEmpty() && args[0] == "-i"){
         GUI(gruposService, viewModel).App(::exitApplication)

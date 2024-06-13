@@ -3,18 +3,18 @@ package dao
 import ds.connection.ConnectionManager
 import entity.GRUPOS
 import interfaces.IGRUPOSdao
+import java.sql.Connection
 import java.sql.SQLException
 import javax.sql.DataSource
 
-class GRUPOSdao(private val connectionManager: ConnectionManager): IGRUPOSdao {
+class GRUPOSdao(): IGRUPOSdao {
 
-    override fun insertGroup(grupos: GRUPOS): GRUPOS? {
+    override fun insertGroup(grupos: GRUPOS, connection: Connection): GRUPOS? {
         val sql = "INSERT INTO GRUPOS (GRUPODESC, MEJORPOSCTFID) VALUES (?, ?)"
-        val connection = connectionManager.getConnection()
 
         return try {
 
-            connection?.prepareStatement(sql)?.use { statement ->
+            connection.prepareStatement(sql)?.use { statement ->
                 statement.setString(1, grupos.grupoDesc)
                 if (grupos.mejorPosCTFId != null) {
                     statement.setInt(2, grupos.mejorPosCTFId)
@@ -36,13 +36,12 @@ class GRUPOSdao(private val connectionManager: ConnectionManager): IGRUPOSdao {
         }
     }
 
-    override fun getAllGroups(): List<GRUPOS>? {
+    override fun getAllGroups(connection: Connection): List<GRUPOS>? {
         val sql = "SELECT * FROM GRUPOS"
-        val connection = connectionManager.getConnection()
 
         return try {
 
-            connection?.prepareStatement(sql)?.use { statement ->
+            connection.prepareStatement(sql)?.use { statement ->
                 val rs = statement.executeQuery()
                 val grupos = mutableListOf<GRUPOS>()
                 while (rs!!.next()){
@@ -62,13 +61,12 @@ class GRUPOSdao(private val connectionManager: ConnectionManager): IGRUPOSdao {
                 }
             }
         } finally {
-            connection?.close()
+            connection.close()
         }
     }
 
-    override fun getGroupById(id: Int): GRUPOS? {
+    override fun getGroupById(id: Int, connection: Connection): GRUPOS? {
         val sql = "SELECT * FROM GRUPOS WHERE GRUPOID = ?"
-        val connection = connectionManager.getConnection()
 
         try {
 
@@ -92,13 +90,13 @@ class GRUPOSdao(private val connectionManager: ConnectionManager): IGRUPOSdao {
         return null
     }
 
-    override fun updateGroups(grupos: GRUPOS): GRUPOS? {
+    override fun updateGroups(grupos: GRUPOS, connection: Connection): GRUPOS? {
         val sql = "UPDATE GRUPOS SET GRUPODESC = ?, MEJORPOSCTFID = ?"
-        val connection = connectionManager.getConnection()
+
 
         try {
 
-            connection?.prepareStatement(sql)?.use { statement ->
+            connection.prepareStatement(sql)?.use { statement ->
                 statement.setString(1, grupos.grupoId.toString())
                 statement.setString(2, grupos.grupoDesc)
                 grupos.mejorPosCTFId?.let { statement.setInt(3, it) }
@@ -115,12 +113,11 @@ class GRUPOSdao(private val connectionManager: ConnectionManager): IGRUPOSdao {
         return null
     }
 
-    override fun deleteGroup(id: Int): Boolean {
+    override fun deleteGroup(id: Int, connection: Connection): Boolean {
         val sql = "DELETE FROM GRUPOS WHERE GRUPOID = ?"
-        val connection = connectionManager.getConnection()
 
         try {
-                connection?.prepareStatement(sql)?.use { statement ->
+                connection.prepareStatement(sql)?.use { statement ->
                     statement.setInt(1, id)
                     (statement.executeUpdate() == 1)
                     return true
@@ -132,12 +129,11 @@ class GRUPOSdao(private val connectionManager: ConnectionManager): IGRUPOSdao {
         return false
     }
 
-    override fun updateBestPosCTF(grupoId: Int, CTFId: Int?): Boolean {
+    override fun updateBestPosCTF(grupoId: Int, CTFId: Int?, connection: Connection): Boolean {
         val sql = "UPDATE GRUPOS SET MEJORPOSCTFID = ? WHERE GRUPOID = ?"
-        val connection = connectionManager.getConnection()
 
         return try {
-                connection?.prepareStatement(sql).use { statement ->
+                connection.prepareStatement(sql).use { statement ->
                     if (CTFId != null) {
                         statement?.setInt(1, CTFId)
                     } else {

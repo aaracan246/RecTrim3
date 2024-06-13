@@ -24,7 +24,7 @@ class FileManager(private val console: Console, private val inputReceiver: Input
                 if (trimmedLine.isNotEmpty() && !trimmedLine.startsWith("#")) {
                     val args = trimmedLine.split(" ", ";").toTypedArray()
                     inputReceiver.inputMenu(args)
-                }
+                }  /* !!!!!!!!!!!!! Probar a almacenar los comandos en una variable (comandos permitidos) e ir probando los distintos inputs del documento */
             }
         }
         catch (e: Exception){

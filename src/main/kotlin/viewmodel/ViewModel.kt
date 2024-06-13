@@ -1,12 +1,14 @@
 package viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
+import ds.connection.ConnectionManager
 import entity.GRUPOS
 import interfaces.services.GRUPOSService
 import java.io.File
+import java.sql.Connection
 
 
-class ViewModel(private val gruposService: GRUPOSService) {
+class ViewModel(private val gruposService: GRUPOSService, private val connection: Connection?) {
     private val _grupos = mutableStateListOf<GRUPOS>()
     val grupos: List<GRUPOS> = _grupos
 
@@ -16,7 +18,7 @@ class ViewModel(private val gruposService: GRUPOSService) {
     }
 
     private fun retrieveGroupInfo() {
-        val allgroups = gruposService.getAllGroups()
+        val allgroups = connection?.let { gruposService.getAllGroups(it) }
 
         allgroups?.forEach{
             _grupos.add(it)

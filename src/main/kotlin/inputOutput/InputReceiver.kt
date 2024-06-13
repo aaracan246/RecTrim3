@@ -3,18 +3,21 @@ package inputOutput
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.Window
 import ds.DataSourceFactory
+import ds.connection.ConnectionManager
 import entity.CTFS
 import files.FileManager
 import gui.GUI
 import servicesImplementation.CTFSImpl
 import servicesImplementation.GRUPOSImpl
+import java.sql.Connection
 import java.sql.SQLException
 
 /**
  * Esta clase recibirá los distintos argumentos y comprobará tanto su extensión como su funcionalidad
  * */
-class InputReceiver(private val console: Console, private val gruposImpl: GRUPOSImpl, private val ctfsImpl: CTFSImpl) {
+class InputReceiver(private val console: Console, private val gruposImpl: GRUPOSImpl, private val ctfsImpl: CTFSImpl, private val connectionManager: ConnectionManager) {
 
+    private val connection = connectionManager.getConnection()
     /**
      * Esta función recibirá y gestionará los argumentos
      * */
@@ -44,11 +47,11 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
      * */
     private fun checkArgs(args: Array<String>, argSize: Int, msg: String): Array<String>? {
         return if (args.size == argSize){
-            args.copyOfRange(1, args.size)
+            args.copyOfRange(0, args.size)
         }
         else{
             console.writer("There was an unexpected error while checking the arguments provided.")
-            null
+            return null
         }
     }
     //__________________________________________________________________________________________________//
@@ -94,7 +97,14 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         val grupoId = args[1].toIntOrNull()
 
         if (arguments != null) {
-            if (grupoId != null) { deleteGroup(grupoId) } else { console.writer("GroupID must be an integer number and cannot be empty.") }
+            if (grupoId != null) {
+                if (connection != null) {
+                    deleteGroup(grupoId, connection)
+                }
+                else{
+                    console.writer("There was an error while trying to establish a connection.")
+                }
+            } else { console.writer("GroupID must be an integer number and cannot be empty.") }
         } else{ console.writer("Something unexpected happened with the arguments provided.") }
     }
 
@@ -183,7 +193,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
      * Esta función implementa la funcionalidad de añadir un grupo
      * */
     private fun addGroup(grupoDesc: String) {                   // -g
-        val grupo = gruposImpl.insertGroup(grupoDesc)
+        val grupo = connection?.let { gruposImpl.insertGroup(grupoDesc, it) }
 
         if (grupo != null){
             console.writer("Group added successfully: ${grupo.grupoId}, ${grupo.grupoDesc}.")
@@ -223,45 +233,47 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         val participations = ctfsImpl.getAllCTFSById(grupoId)
         val bestParticipation = participations?.maxByOrNull{ it.puntuacion?: 0 }
 
-        if (bestParticipation != null){ gruposImpl.updateBestPosCTF(grupoId, bestParticipation.CTFid)  }
+        if (bestParticipation != null){
+            if (connection != null) {
+                gruposImpl.updateBestPosCTF(grupoId, bestParticipation.CTFid, connection)
+            }
+        }
         else { console.writer("No participations data found for group: $grupoId.") }
     }
 
     /**
      * Esta función implementa la funcionalidad de eliminar un grupo
      * */
-    private fun deleteGroup(grupoId: Int){
-        val connection = DataSourceFactory.getDS(DataSourceFactory.DataSourceType.HIKARI).connection
+    private fun deleteGroup(grupoId: Int, connection: Connection){
 
         try {
 
-            connection.autoCommit = false
+            connectionManager.beginTransaction(connection)
 
-            gruposImpl.updateBestPosCTF(grupoId, null)
+            gruposImpl.updateBestPosCTF(grupoId, null, connection)
 
             val allCTFParticipations = ctfsImpl.getAllCTFSById(grupoId)
             allCTFParticipations?.forEach {
                 ctfsImpl.deleteCTF(it.CTFid, it.grupoid )
             }
 
-            val successfulDel = gruposImpl.deleteGroup(grupoId)
+            val successfulDel = gruposImpl.deleteGroup(grupoId, connection)
 
             if (successfulDel){
-                connection.commit()
+                connectionManager.commitTransaction(connection)
                 console.writer("Group deleted successfully: $grupoId.")
             }
             else{
-                connection.rollback()
+                connectionManager.rollbackTransaction(connection)
                 console.writer("Something unexpected happened while trying to delete the group. $grupoId.")
             }
 
         }catch (e: SQLException){
-            connection.rollback()
+            connectionManager.rollbackTransaction(connection)
             console.writer("Something unexpected happened while trying to delete the group. $grupoId.")
         }
         finally {
-            connection.autoCommit = true
-            connection.close()
+            connectionManager.closeConnection(connection)
         }
     }
 
@@ -271,7 +283,9 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     private fun deleteParticipation(ctfId: Int, grupoId: Int){
         try {
 
-            gruposImpl.updateBestPosCTF(grupoId, null)
+            if (connection != null) {
+                gruposImpl.updateBestPosCTF(grupoId, null, connection)
+            }
 
             val participationExists = ctfsImpl.getCTFParticipation(ctfId, grupoId)
             if (participationExists != null){
@@ -294,7 +308,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
      * Esta función implementa la funcionalidad de mostrar la información según ID del grupo
      * */
     private fun showGroupInfo(grupoId: Int){                    // -l
-        val grupo = gruposImpl.getGroupById(grupoId)
+        val grupo = connection?.let { gruposImpl.getGroupById(grupoId, it) }
 
         if (grupo != null) {
             console.writer("Group: ${grupo.grupoDesc}, best position: ${grupo.mejorPosCTFId}.")
@@ -308,7 +322,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
      * Esta función implementa la funcionalidad de mostrar todos los grupos
      * */
     private fun showAllGroupsInfo(){                            // -l
-        val grupo = gruposImpl.getAllGroups()
+        val grupo = connection?.let { gruposImpl.getAllGroups(it) }
 
         if (!grupo.isNullOrEmpty()){
             grupo.forEach{

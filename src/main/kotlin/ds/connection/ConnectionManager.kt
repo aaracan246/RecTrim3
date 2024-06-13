@@ -15,25 +15,25 @@ class ConnectionManager(private val dataSource: DataSource) {
         return connection
     }
 
-    fun closeConnection(){
-        val connection: Connection? = dataSource.connection
+    fun closeConnection(connection: Connection){
 
-        if (connection?.isClosed == false){
+        if (!connection.isClosed){
             connection.close()
         }
     }
 
-    fun beginTransaction(){
-        getConnection()?.autoCommit = false
+    fun beginTransaction(connection: Connection){
+        connection.autoCommit = false
+        connection.commit()
     }
 
-    fun commitTransaction(){
-        getConnection()?.commit()
-        getConnection()?.autoCommit = true
+    fun commitTransaction(connection: Connection){
+        connection.commit()
+        connection.autoCommit = true
     }
 
-    fun rollbackTransaction(){
-        getConnection()?.rollback()
-        getConnection()?.autoCommit = true
+    fun rollbackTransaction(connection: Connection){
+        connection.rollback()
+        connection.autoCommit = true
     }
 }
