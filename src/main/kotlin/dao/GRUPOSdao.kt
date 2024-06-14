@@ -70,7 +70,7 @@ class GRUPOSdao(): IGRUPOSdao {
 
         try {
 
-            connection?.prepareStatement(sql)?.use { statement ->
+            connection.prepareStatement(sql)?.use { statement ->
                 statement.setString(1, id.toString())
                 val rs = statement.executeQuery()
                 if (rs.next()) {
@@ -81,7 +81,7 @@ class GRUPOSdao(): IGRUPOSdao {
                     )
                 }
                 else{
-                    throw SQLException("Something unexpected happened while trying to fetch group data.")
+                    return null
                 }
             }
         }catch (e: Exception){

@@ -15,7 +15,7 @@ fun main(args: Array<String>) = application{
 
     val console = Console()
 
-    //val args: Array<String> = arrayOf("-f", "fileToRead.txt")
+    val args: Array<String> = arrayOf("-p", "23", "23", "150")
 
     val daoFactory = DAOFactory()
 

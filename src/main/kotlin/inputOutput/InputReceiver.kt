@@ -81,13 +81,30 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             val puntuacion = args[3].toIntOrNull()
 
             if (grupoId != null && ctfId != null && puntuacion != null) {
-                val grupoExist = connection?.let { gruposImpl.getGroupById(grupoId, it) } != null
+                try {
+                    if (connection != null) {
+                        connectionManager.beginTransaction(connection)
+                        val grupoExist = connection.let { gruposImpl.getGroupById(grupoId, it) }
 
-                if (grupoExist){
-                    addParticipation(grupoId, ctfId, puntuacion)
+                        if (grupoExist != null){
+                            addParticipation(grupoId, ctfId, puntuacion)
+                            connectionManager.commitTransaction(connection)
+                        }
+                        else{
+                            console.writer("There is no group with that ID associated. ID: $grupoId.")
+                            connectionManager.rollbackTransaction(connection)
+                        }
+                    }
+                    else{
+                        console.writer("Error accessing the database. Something unexpected happened.")
+                    }
+                } catch (e: Exception) {
+                     console.writer("Error accessing the database: ${e.message}")
                 }
-                else{
-                    console.writer("There is no group with that ID associated. ID: $grupoId.")
+                finally {
+                    if (connection != null) {
+                        connectionManager.closeConnection(connection)
+                    }
                 }
             } else {
                 console.writer("All arguments must be integer numbers and cannot be empty.")
