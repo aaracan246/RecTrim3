@@ -3,18 +3,18 @@ package dao
 import ds.connection.ConnectionManager
 import entity.CTFS
 import interfaces.ICTFdao
+import java.sql.Connection
 import java.sql.SQLException
 import javax.sql.DataSource
 
-class CTFSdao(private val connectionManager: ConnectionManager): ICTFdao{
+class CTFSdao(): ICTFdao{
 
-    override fun insertCTF(ctf: CTFS): CTFS? {
+    override fun insertCTF(ctf: CTFS, connection: Connection): CTFS? {
         val sql = "INSERT INTO CTFS (CTFID, GRUPOID, PUNTUACION) VALUES (?, ?, ?)"
-        val connection = connectionManager.getConnection()
 
         try {
 
-            connection?.prepareStatement(sql)?.use { statement ->
+            connection.prepareStatement(sql)?.use { statement ->
                 statement.setInt(1, ctf.CTFid)
                 statement.setInt(2, ctf.grupoid)
                 ctf.puntuacion?.let { statement.setInt(3, it) }
@@ -32,13 +32,12 @@ class CTFSdao(private val connectionManager: ConnectionManager): ICTFdao{
         return null
     }
 
-    override fun getCTFParticipation(grupoId: Int, ctfId: Int): CTFS? {
+    override fun getCTFParticipation(grupoId: Int, ctfId: Int, connection: Connection): CTFS? {
         val sql = "SELECT * FROM CTFS WHERE GRUPOID = ? AND CTFID = ?"
-        val connection = connectionManager.getConnection()
 
         try {
 
-            connection?.prepareStatement(sql)?.use { statement ->
+            connection.prepareStatement(sql)?.use { statement ->
                 statement.setInt(1, grupoId)
                 statement.setInt(2, ctfId)
                 val rs = statement.executeQuery()
@@ -60,13 +59,13 @@ class CTFSdao(private val connectionManager: ConnectionManager): ICTFdao{
     }
 
 
-    override fun getAllCTFSById(ctfId: Int): List<CTFS>? {
+    override fun getAllCTFSById(ctfId: Int, connection: Connection): List<CTFS>? {
         val sql = "SELECT * FROM CTFS WHERE GRUPOID = ? ORDER BY PUNTUACION DESC"
-        val connection = connectionManager.getConnection()
+
 
         try {
 
-            connection?.prepareStatement(sql)?.use { statement ->
+            connection.prepareStatement(sql)?.use { statement ->
                 statement.setInt(1, ctfId)
                 val rs = statement.executeQuery()
                 val ctfs = mutableListOf<CTFS>()
@@ -93,13 +92,12 @@ class CTFSdao(private val connectionManager: ConnectionManager): ICTFdao{
     }
 
 
-    override fun updateCTFS(ctf: CTFS): CTFS? {
+    override fun updateCTFS(ctf: CTFS, connection: Connection): CTFS? {
         val sql = "UPDATE CTFS SET PUNTUACION = ? WHERE CTFID = ? AND GRUPOID = ?"
-        val connection = connectionManager.getConnection()
 
         try {
 
-            connection?.prepareStatement(sql)?.use { statement ->
+            connection.prepareStatement(sql)?.use { statement ->
                 ctf.puntuacion?.let { statement.setInt(1, it) }
                 statement.setInt(2, ctf.CTFid)
                 statement.setInt(3, ctf.grupoid)
@@ -117,12 +115,11 @@ class CTFSdao(private val connectionManager: ConnectionManager): ICTFdao{
         return null
     }
 
-    override fun deleteCTF(ctfId: Int, grupoId: Int): Boolean {
+    override fun deleteCTF(ctfId: Int, grupoId: Int, connection: Connection): Boolean {
         val sql = "DELETE FROM CTFS WHERE CTFID = ? AND GRUPOID = ?"
-        val connection = connectionManager.getConnection()
 
         try {
-                connection?.prepareStatement(sql)?.use { statement ->
+                connection.prepareStatement(sql)?.use { statement ->
                     statement.setInt(1, ctfId)
                     statement.setInt(2, grupoId)
                     statement.executeUpdate()

@@ -21,6 +21,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
     /**
      * Esta función recibirá y gestionará los argumentos
      * */
+
     fun inputMenu(args: Array<String>){
 
         when(args[0]){
@@ -80,7 +81,14 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             val puntuacion = args[3].toIntOrNull()
 
             if (grupoId != null && ctfId != null && puntuacion != null) {
-                addParticipation(grupoId, ctfId, puntuacion)
+                val grupoExist = connection?.let { gruposImpl.getGroupById(grupoId, it) } != null
+
+                if (grupoExist){
+                    addParticipation(grupoId, ctfId, puntuacion)
+                }
+                else{
+                    console.writer("There is no group with that ID associated. ID: $grupoId.")
+                }
             } else {
                 console.writer("All arguments must be integer numbers and cannot be empty.")
             }
@@ -207,15 +215,19 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
      * Esta función implementa la funcionalidad de añadir una participación
      * */
     private fun addParticipation(ctfId: Int,  grupoId: Int, puntuacion: Int){       // -p
-        val participationExists = ctfsImpl.getCTFParticipation(ctfId, grupoId)
+        val participationExists = connection?.let { ctfsImpl.getCTFParticipation(ctfId, grupoId, it) }
 
         if (participationExists != null) {
             participationExists.puntuacion = puntuacion
-            ctfsImpl.updateCTFS(participationExists)
+            if (connection != null) {
+                ctfsImpl.updateCTFS(participationExists, connection)
+            }
         }
         else{
             val newParticipation = CTFS(ctfId, grupoId, puntuacion)
-            ctfsImpl.insertCTF(newParticipation)
+            if (connection != null) {
+                ctfsImpl.insertCTF(newParticipation, connection)
+            }
             console.writer("New CTFS added successfully!")
         }
 
@@ -230,7 +242,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
      * Esta función calcula la mejor posición de todos los ctf del grupo deseado y los updateo
      * */
     private fun calcBestPos(grupoId: Int){
-        val participations = ctfsImpl.getAllCTFSById(grupoId)
+        val participations = connection?.let { ctfsImpl.getAllCTFSById(grupoId, it) }
         val bestParticipation = participations?.maxByOrNull{ it.puntuacion?: 0 }
 
         if (bestParticipation != null){
@@ -252,9 +264,9 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
             gruposImpl.updateBestPosCTF(grupoId, null, connection)
 
-            val allCTFParticipations = ctfsImpl.getAllCTFSById(grupoId)
+            val allCTFParticipations = ctfsImpl.getAllCTFSById(grupoId, connection)
             allCTFParticipations?.forEach {
-                ctfsImpl.deleteCTF(it.CTFid, it.grupoid )
+                ctfsImpl.deleteCTF(it.CTFid, it.grupoid, connection )
             }
 
             val successfulDel = gruposImpl.deleteGroup(grupoId, connection)
@@ -287,9 +299,11 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                 gruposImpl.updateBestPosCTF(grupoId, null, connection)
             }
 
-            val participationExists = ctfsImpl.getCTFParticipation(ctfId, grupoId)
+            val participationExists = connection?.let { ctfsImpl.getCTFParticipation(ctfId, grupoId, it) }
             if (participationExists != null){
-                ctfsImpl.deleteCTF(ctfId, grupoId)
+                if (connection != null) {
+                    ctfsImpl.deleteCTF(ctfId, grupoId, connection)
+                }
                 console.writer("Participation deleted successfully: CTFID: $ctfId || GROUPID: $grupoId.")
                 calcBestPos(grupoId)
             }
@@ -337,7 +351,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
      * Esta función implementa la funcionalidad de mostrar todas las participaciones de un grupo por ID
      * */
     private fun showCTFParticipation(ctfId: Int) {              // -c
-        val participations = ctfsImpl.getAllCTFSById(ctfId)
+        val participations = connection?.let { ctfsImpl.getAllCTFSById(ctfId, it) }
 
         if (!participations.isNullOrEmpty()) {
             participations.forEach {

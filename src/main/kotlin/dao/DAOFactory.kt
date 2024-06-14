@@ -14,7 +14,7 @@ class DAOFactory {
     fun getDAO(connectionManager: ConnectionManager): Pair<ICTFdao?, IGRUPOSdao?>{
         val readType = readType(File("configSQL.txt"))
         return when(readType) {
-            DAOType.DATASOURCE.desc -> Pair(CTFSdao(connectionManager), GRUPOSdao())
+            DAOType.DATASOURCE.desc -> Pair(CTFSdao(), GRUPOSdao())
 
             DAOType.XML.desc -> TODO()
 
