@@ -51,7 +51,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             args.copyOfRange(0, args.size)
         }
         else{
-            console.writer("There was an unexpected error while checking the arguments provided.")
+            console.writer("There was an unexpected error while checking the arguments provided.", true)
             return null
         }
     }
@@ -91,15 +91,15 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                             connectionManager.commitTransaction(connection)
                         }
                         else{
-                            console.writer("There is no group with that ID associated. ID: $grupoId.")
+                            console.writer("There is no group with that ID associated. ID: $grupoId.", true)
                             connectionManager.rollbackTransaction(connection)
                         }
                     }
                     else{
-                        console.writer("Error accessing the database. Something unexpected happened.")
+                        console.writer("Error accessing the database. Something unexpected happened.", true)
                     }
                 } catch (e: Exception) {
-                     console.writer("Error accessing the database: ${e.message}")
+                     console.writer("Error accessing the database: ${e.message}", true)
                 }
                 finally {
                     if (connection != null) {
@@ -107,10 +107,10 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                     }
                 }
             } else {
-                console.writer("All arguments must be integer numbers and cannot be empty.")
+                console.writer("All arguments must be integer numbers and cannot be empty.", true)
             }
         } else {
-            console.writer("Something unexpected happened with the arguments provided.")
+            console.writer("Something unexpected happened with the arguments provided.", true)
         }
     }
 
@@ -127,10 +127,10 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                     deleteGroup(grupoId, connection)
                 }
                 else{
-                    console.writer("There was an error while trying to establish a connection.")
+                    console.writer("There was an error while trying to establish a connection.", true)
                 }
-            } else { console.writer("GroupID must be an integer number and cannot be empty.") }
-        } else{ console.writer("Something unexpected happened with the arguments provided.") }
+            } else { console.writer("GroupID must be an integer number and cannot be empty.", true) }
+        } else{ console.writer("Something unexpected happened with the arguments provided.", true) }
     }
 
     /**
@@ -146,11 +146,11 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                 deleteParticipation(ctfId, grupoId)
             }
             else{
-                console.writer("Both IDs must be integer numbers and not be null.")
+                console.writer("Both IDs must be integer numbers and not be null.", true)
             }
         }
         else{
-            console.writer("Something unexpected happened while trying to delete the participation.")
+            console.writer("Something unexpected happened while trying to delete the participation.", true)
         }
     }
 
@@ -166,11 +166,11 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
             if (grupoId != null) {
                 showGroupInfo(grupoId)
             } else {
-                console.writer("GroupID must be an integer number.")
+                console.writer("GroupID must be an integer number.", true)
             }
         }
         else {
-            console.writer("Not enough arguments. Try: -l <grupoId>")
+            console.writer("Not enough arguments. Try: -l <grupoId>", true)
         }
     }
 
@@ -180,7 +180,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
      * */
     private fun optionListCTF(args: Array<String>){
         if (args.size == 1) {
-            console.writer("Not enough arguments. Try: -c <ctfId>")
+            console.writer("Not enough arguments. Try: -c <ctfId>", true)
         }
         else if (args.size == 2) {
             val ctfId = args[1].toIntOrNull()
@@ -188,11 +188,11 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
                 showCTFParticipation(ctfId)
             }
             else {
-                console.writer("CTFID must be an integer number and cannot be empty.")
+                console.writer("CTFID must be an integer number and cannot be empty.", true)
             }
         }
         else {
-            console.writer("Too many arguments. Try: -c <ctfId>")
+            console.writer("Too many arguments. Try: -c <ctfId>", true)
         }
     }
 
@@ -203,7 +203,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
     private fun optionFiles(args: Array<String>){
         if (args.size < 2){
-            console.writer("Not enough arguments. Try -f <filepath>")
+            console.writer("Not enough arguments. Try -f <filepath>", true)
             return
         }
 

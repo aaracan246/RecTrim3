@@ -14,21 +14,44 @@ class FileManager(private val console: Console, private val inputReceiver: Input
 
     override fun fileRead(filepath: String) {
         if (!fileExists(filepath)){
-            console.writer("File does not exist or something is wrong with the path. $filepath.")
+            console.writer("File does not exist or something is wrong with the path. $filepath.", true)
         }
 
         try {
             val file = File(filepath)
-            file.forEachLine {
-                val trimmedLine = it.trim()
-                if (trimmedLine.isNotEmpty() && !trimmedLine.startsWith("#")) {
-                    val args = trimmedLine.split(" ", ";").toTypedArray()
-                    inputReceiver.inputMenu(args)
-                }  /* !!!!!!!!!!!!! Probar a almacenar los comandos en una variable (comandos permitidos) e ir probando los distintos inputs del documento */
+
+            val allowedCommands = setOf("-g", "-p", "-t", "-e", "-l", "c")
+            var currentCommand: String = ""
+
+            file.forEachLine { line ->
+                val trimmedLine = line.trim()
+                var validArgument: List<String> = mutableListOf()
+                val splitLine = trimmedLine.split(";")
+
+                if (trimmedLine.isNotEmpty() && !trimmedLine.startsWith("#")){
+                    if (allowedCommands.contains(trimmedLine)){
+                        currentCommand = trimmedLine
+                    }
+                    else if(splitLine.isNotEmpty()){
+                        validArgument = splitLine.toList()
+                    }
+                }
+                if (currentCommand.isNotEmpty() && validArgument.isNotEmpty()){
+                    tryCommand(currentCommand, validArgument, inputReceiver)
+                    console.writer("", true)
+                }
+                console.writer("", true)
             }
         }
         catch (e: Exception){
-            console.writer("Error reading file: ${e.message}.")
+            console.writer("Error reading file: ${e.message}.", true)
+        }
+    }
+
+    override fun tryCommand(command: String, line: List<String>, inputReceiver: InputReceiver) {
+        if (line.isNotEmpty()){
+            val args = listOf(command) + line
+            inputReceiver.inputMenu(args.toTypedArray())
         }
     }
 }
