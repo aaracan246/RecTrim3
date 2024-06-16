@@ -249,7 +249,7 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         }
 
         calcBestPos(grupoId)
-        console.writer("Participation added / updated successfully for group: $grupoId || $ctfId || $puntuacion.")
+        console.writer("Participation added / updated successfully: CTFID: $ctfId || GROUPID: $grupoId || SCORE: $puntuacion.", true)
     }
 
     //__________________________________________________________________________________________________//
