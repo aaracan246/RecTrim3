@@ -277,20 +277,34 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
 
         try {
 
+            // Begin transaction - set autocommit to false:
             connectionManager.beginTransaction(connection)
 
+            // Get all groups so we can recalculate their positions:
+            val allGroups = gruposImpl.getAllGroups(connection)
+
+            // Set current group id to null:
             gruposImpl.updateBestPosCTF(grupoId, null, connection)
 
+            // Deleting all participations of current group:
             val allCTFParticipations = ctfsImpl.getAllCTFSById(grupoId, connection)
             allCTFParticipations?.forEach {
                 ctfsImpl.deleteCTF(it.CTFid, it.grupoid, connection )
             }
 
+            // Deleting group:
             val successfulDel = gruposImpl.deleteGroup(grupoId, connection)
 
+            // If successfull delete - commit and recalculate all groups:
             if (successfulDel){
                 connectionManager.commitTransaction(connection)
                 console.writer("Group deleted successfully: $grupoId.")
+
+                allGroups?.forEach{ group ->
+                    if (group.grupoId != grupoId){
+                        calcBestPos(group.grupoId)
+                    }
+                }
             }
             else{
                 connectionManager.rollbackTransaction(connection)
@@ -313,23 +327,34 @@ class InputReceiver(private val console: Console, private val gruposImpl: GRUPOS
         try {
 
             if (connection != null) {
+                connectionManager.beginTransaction(connection)
+            }
+
+
+            if (connection != null) {
                 gruposImpl.updateBestPosCTF(grupoId, null, connection)
             }
+
 
             val participationExists = connection?.let { ctfsImpl.getCTFParticipation(ctfId, grupoId, it) }
             if (participationExists != null){
                 if (connection != null) {
                     ctfsImpl.deleteCTF(ctfId, grupoId, connection)
+                    console.writer("Participation deleted successfully: CTFID: $ctfId || GROUPID: $grupoId.")
+                    calcBestPos(grupoId)
+                    connectionManager.commitTransaction(connection)
                 }
-                console.writer("Participation deleted successfully: CTFID: $ctfId || GROUPID: $grupoId.")
-                calcBestPos(grupoId)
             }
             else{
                 console.writer("No participation found for: CTFID: $ctfId || GROUPID: $grupoId.")
+                if (connection != null) {
+                    connectionManager.rollbackTransaction(connection)
+                }
             }
         }
         catch (e: Exception){
             console.writer("Something unexpected happened while trying to delete the participation.")
+            connection?.let { connectionManager.rollbackTransaction(it) }
         }
     }
     //__________________________________________________________________________________________________//
